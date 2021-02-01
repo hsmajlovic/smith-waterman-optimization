@@ -8,7 +8,7 @@
 #include "benchmarking/timing.hpp"
 #include "benchmarking/data-generation.hpp"
 #include "assert.h"
-#include "smith_waterman.h"
+#include "smith_waterman.cpp"
 
 struct compare_pairs
 {
@@ -17,7 +17,7 @@ struct compare_pairs
 		{
          
             std::cout << data.first << " " << data.second<< std::endl;
-			smith_waterman(data);
+			 smith_waterman(data);
             return "0";
 		}
 };
