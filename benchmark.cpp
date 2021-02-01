@@ -5,9 +5,10 @@
 #include <iostream>  // std::cout
 #include <string>
 #include <utility>
-#include "timing.hpp"
-#include "data-generation.hpp"
+#include "benchmarking/timing.hpp"
+#include "benchmarking/data-generation.hpp"
 #include "assert.h"
+#include "smith_waterman.h"
 
 struct compare_pairs
 {
@@ -16,7 +17,7 @@ struct compare_pairs
 		{
          
             std::cout << data.first << " " << data.second<< std::endl;
-     
+			smith_waterman(data);
             return "0";
 		}
 };
