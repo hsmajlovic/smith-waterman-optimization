@@ -40,13 +40,9 @@ template < typename T >
             }
         }
 
-        std::cout << "Max element " << max_element << " " << max_element_i << " " << max_element_j << std::endl;
-
         std::vector<std::pair<int, int>> traceback_indices;
         std::string alignment_str_1("");
         std::string alignment_str_2("");
-        alignment_str_1 += data.first[max_element_i - 1];
-        alignment_str_2 += data.second[max_element_j - 1];
         int current_i = max_element_i;
         int current_j = max_element_j;
         while (matrix[current_i][current_j]) {
@@ -54,9 +50,6 @@ template < typename T >
             diagonal_value = matrix[current_i][current_j] - (data.first[current_i - 1] == data.second[current_j - 1] ? match : mismatch);
             top_value = matrix[current_i][current_j] - gaps;
             left_value = matrix[current_i][current_j] - gaps;
-            std::cout << "\nBacktracking: " << std::endl;
-            std::cout << current_i << " " << current_j << " " << std::endl;
-            std::cout << diagonal_value << " " << top_value << " " << left_value << std::endl;
             if (diagonal_value == matrix[current_i-1][current_j-1]) {
                 current_i = current_i - 1;
                 current_j = current_j - 1;
@@ -77,13 +70,6 @@ template < typename T >
         std::reverse(alignment_str_2.begin(), alignment_str_2.end());
 
         std::cout << alignment_str_1 << " " << alignment_str_2 << std::endl;
-
-        for (int i = 0; i != data.first.size() + 1; ++i) {
-            std::cout << std::endl;
-            for (int j = 0; j != data.second.size() + 1; ++j) {
-                std::cout << matrix[i][j] << " ";
-            }
-        }
 
         // std::copy(
         //     traceback_indices.begin(), traceback_indices.end(),

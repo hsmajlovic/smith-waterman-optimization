@@ -27,7 +27,7 @@ struct compare_pairs
 int main()
 {
 	auto num_pairs  = 1u;
-	auto string_len = 1u << 2;
+	auto string_len = 1u << 3;
 
     // For random numbers, one must first seed the random number generator. This is the idiomatic
     // approach for the random number generator libraries that we have chosen.
