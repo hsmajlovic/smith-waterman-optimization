@@ -15,9 +15,10 @@ struct compare_pairs
 	template < typename T >
 		T operator () ( std::pair< T, T > data ) const
 		{
-         
+			std::cout << "New pair: " << std::endl;
             std::cout << data.first << " " << data.second<< std::endl;
-			 smith_waterman(data);
+			
+			smith_waterman(data);
             return "0";
 		}
 };
@@ -25,8 +26,8 @@ struct compare_pairs
 
 int main()
 {
-	auto num_pairs  = 1000u;
-	auto string_len = 1u << 4;
+	auto num_pairs  = 1u;
+	auto string_len = 1u << 2;
 
     // For random numbers, one must first seed the random number generator. This is the idiomatic
     // approach for the random number generator libraries that we have chosen.
