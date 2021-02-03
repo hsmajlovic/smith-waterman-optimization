@@ -43,8 +43,10 @@ template < typename T >
         std::cout << "Max element " << max_element << " " << max_element_i << " " << max_element_j << std::endl;
 
         std::vector<std::pair<int, int>> traceback_indices;
-        std::string alignment_str_1 = "" + data.first[max_element_i];
-        std::string alignment_str_2 = "" + data.second[max_element_j];
+        std::string alignment_str_1("");
+        std::string alignment_str_2("");
+        alignment_str_1 += data.first[max_element_i - 1];
+        alignment_str_2 += data.second[max_element_j - 1];
         int current_i = max_element_i;
         int current_j = max_element_j;
         while (matrix[current_i][current_j]) {
@@ -58,18 +60,16 @@ template < typename T >
             if (diagonal_value == matrix[current_i-1][current_j-1]) {
                 current_i = current_i - 1;
                 current_j = current_j - 1;
-                alignment_str_1 += data.first[current_i - 1];
-                alignment_str_2 += data.second[current_j - 1];
+                alignment_str_1 += data.first[current_i];
+                alignment_str_2 += data.second[current_j];
             } else if (top_value == matrix[current_i-1][current_j]) {
                 current_i = current_i - 1;
-                current_j = current_j;
-                alignment_str_1 += data.first[current_i - 1];
-                alignment_str_2 += "-";
+                alignment_str_1 += data.first[current_i];
+                alignment_str_2 += '-';
             } else {
-                current_i = current_i;
                 current_j = current_j - 1;
-                alignment_str_1 += "-";
-                alignment_str_2 += data.second[current_j - 1];
+                alignment_str_1 += '-';
+                alignment_str_2 += data.second[current_j];
             }
         }
 
