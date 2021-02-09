@@ -9,6 +9,8 @@
 #include "benchmarking/data-generation.hpp"
 #include "assert.h"
 #include "smith_waterman.cpp"
+#include "gnuplot-iostream.h"
+
 
 struct compare_pairs
 {
