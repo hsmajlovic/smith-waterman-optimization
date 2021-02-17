@@ -8,8 +8,9 @@
 #include "benchmarking/timing.hpp"
 #include "benchmarking/data-generation.hpp"
 #include "assert.h"
-#include "smith_waterman.cpp"
-#include "gnuplot-iostream.h"
+#include "smith_waterman_base.cpp"
+#include "smith_waterman_v1.cpp"
+// #include "gnuplot-iostream.h"
 
 
 struct compare_pairs
@@ -17,8 +18,8 @@ struct compare_pairs
 	template < typename T >
 		T operator () ( std::pair< T, T > data ) const
 		{
-			std::cout << "New pair: " << std::endl;
-            std::cout << data.first << " " << data.second<< std::endl;
+			// std::cout << "New pair: " << std::endl;
+            // std::cout << data.first << " " << data.second<< std::endl;
 			
 			smith_waterman(data);
             return "0";
@@ -28,8 +29,8 @@ struct compare_pairs
 
 int main()
 {
-	auto num_pairs  = 1u;
-	auto string_len = 1u << 3;
+	auto num_pairs  = 3u;
+	auto string_len = 1u << 15;
 
     // For random numbers, one must first seed the random number generator. This is the idiomatic
     // approach for the random number generator libraries that we have chosen.

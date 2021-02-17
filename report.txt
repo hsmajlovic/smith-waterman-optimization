@@ -1,0 +1,53 @@
+Matrix traverse + max elem finding: Average time (us): 1.18967e+07
+Matrix traverse merged with elem finding: 1.00537e+07
+Matrix traverse merged with elem finding bitwise: 6.27376e+06
+
+    Average time (us): 6.17569e+06
+
+    Performance counter stats for './benchmark':
+
+        222,133,141      cache-misses:u            #   38.905 % of all cache refs    
+        570,969,520      cache-references:u                                          
+        556,698,711      branch-misses:u                                             
+            2,130,766      page-faults:u                                               
+        45,142,472,128      cycles:u                                                    
+
+        12.353658990 seconds time elapsed
+
+        10.129007000 seconds user
+        2.207376000 seconds sys
+
+    // With substr and offset
+    Average time (us): 3.57714e+06
+
+    Performance counter stats for './benchmark':
+
+            103,951      cache-misses:u            #    5.719 % of all cache refs    
+            1,817,780      cache-references:u                                          
+            53,708,536      branch-misses:u                                             
+                218      page-faults:u                                               
+        15,956,687,727      cycles:u                                                    
+
+        3.579009167 seconds time elapsed
+
+        3.574946000 seconds user
+        0.000000000 seconds sys
+
+    Average time (us): 3.54508e+06
+
+    Performance counter stats for './benchmark_base':
+
+            98,966,969      L1-dcache-load-misses                                         (66.67%)
+                5,383      LLC-load-misses                                               (66.67%)
+                51,358      cache-misses:u            #    1.989 % of all cache refs      (66.67%)
+            2,582,587      cache-references:u                                            (66.67%)
+            53,952,310      branch-misses:u                                               (66.66%)
+                213      page-faults:u                                               
+        15,936,192,188      cycles:u                                                      (66.66%)
+
+        3.546754013 seconds time elapsed
+
+        3.532127000 seconds user
+        0.000000000 seconds sys
+    
+    
