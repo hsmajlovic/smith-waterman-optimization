@@ -1,16 +1,25 @@
+/* 
+NOTE: The code in here is just a POC of the hypothetical (and impossible) scenario in which
+the lowest level caches are utilized the most.
+Only the bottleneck of the algorithm is benchmarked, i.e. the population of the matrix.
+Idea is to have a window of size that can surely fit in L1 cache (L1 cache size for our machine is 32KB)
+and then traverse that window over the input strings in order to find the max element of the matrix.
+That way we can ge trid of the matrix completely and keep track only of the window (of size w*w)
+and some auxiliary data of size approx. 2*w. In our case we hardcoded w to be 256 elements long.
+Each element is a 4B int. 
+Please note that even the correctness of the algorithm is sacrifised in order to maximize cache utilization as
+the side_leftover and top_leftover are mocked with incorrect values.
+*/
 #include <iostream>  // std::cout
 #include <string>
 #include <vector>
 #include <utility>
 #include <algorithm> // for copy
 #include <iterator> // for ostream_iterator
-#include "smith_waterman.h"
 
 
 template < typename T >
     void smith_waterman_windowed(std::pair< T, T > sequences){
-        // TODO: Switch everything to unsigned ints
-        
         // instantiate a matrix 
         T s1 = sequences.first;
         T s2 = sequences.second;
@@ -62,38 +71,4 @@ template < typename T >
         }
 
         std::cout << max_element << " " << max_element_i << " " << max_element_j << std::endl;
-
-
-        // traceback
-
-        // std::vector<std::pair<int, int>> traceback_indices;
-        // std::string alignment_str_1("");
-        // std::string alignment_str_2("");
-        // int current_i = max_element_i;
-        // int current_j = max_element_j;
-        // while (matrix[current_i][current_j]) {
-        //     traceback_indices.push_back(std::make_pair(current_i, current_j));
-        //     diagonal_value = matrix[current_i][current_j] - (data.first[current_i - 1] == data.second[current_j - 1] ? match : mismatch);
-        //     top_value = matrix[current_i][current_j] - gaps;
-        //     left_value = matrix[current_i][current_j] - gaps;
-        //     if (diagonal_value == matrix[current_i-1][current_j-1]) {
-        //         current_i = current_i - 1;
-        //         current_j = current_j - 1;
-        //         alignment_str_1 += data.first[current_i];
-        //         alignment_str_2 += data.second[current_j];
-        //     } else if (top_value == matrix[current_i-1][current_j]) {
-        //         current_i = current_i - 1;
-        //         alignment_str_1 += data.first[current_i];
-        //         alignment_str_2 += '-';
-        //     } else {
-        //         current_j = current_j - 1;
-        //         alignment_str_1 += '-';
-        //         alignment_str_2 += data.second[current_j];
-        //     }
-        // }
-
-        // std::reverse(alignment_str_1.begin(), alignment_str_1.end());
-        // std::reverse(alignment_str_2.begin(), alignment_str_2.end());
-
-        // std::cout << alignment_str_1 << " " << alignment_str_2 << std::endl;
 }

@@ -4,7 +4,6 @@
 #include <utility>
 #include <algorithm> // for copy
 #include <iterator> // for ostream_iterator
-#include "smith_waterman.h"
 
 
 template < typename T >
@@ -48,7 +47,7 @@ template < typename T >
         std::cout << max_element << " " << max_element_i << " " << max_element_j << std::endl;
 
 
-        // traceback
+        // // traceback
 
         // std::vector<std::pair<int, int>> traceback_indices;
         // std::string alignment_str_1("");
@@ -57,22 +56,22 @@ template < typename T >
         // int current_j = max_element_j;
         // while (matrix[current_i][current_j]) {
         //     traceback_indices.push_back(std::make_pair(current_i, current_j));
-        //     diagonal_value = matrix[current_i][current_j] - (data.first[current_i - 1] == data.second[current_j - 1] ? match : mismatch);
+        //     diagonal_value = matrix[current_i][current_j] - (s1[current_i - 1] == s2[current_j - 1] ? match : mismatch);
         //     top_value = matrix[current_i][current_j] - gaps;
         //     left_value = matrix[current_i][current_j] - gaps;
         //     if (diagonal_value == matrix[current_i-1][current_j-1]) {
         //         current_i = current_i - 1;
         //         current_j = current_j - 1;
-        //         alignment_str_1 += data.first[current_i];
-        //         alignment_str_2 += data.second[current_j];
+        //         alignment_str_1 += s1[current_i];
+        //         alignment_str_2 += s2[current_j];
         //     } else if (top_value == matrix[current_i-1][current_j]) {
         //         current_i = current_i - 1;
-        //         alignment_str_1 += data.first[current_i];
+        //         alignment_str_1 += s1[current_i];
         //         alignment_str_2 += '-';
         //     } else {
         //         current_j = current_j - 1;
         //         alignment_str_1 += '-';
-        //         alignment_str_2 += data.second[current_j];
+        //         alignment_str_2 += s2[current_j];
         //     }
         // }
 
@@ -80,8 +79,4 @@ template < typename T >
         // std::reverse(alignment_str_2.begin(), alignment_str_2.end());
 
         // std::cout << alignment_str_1 << " " << alignment_str_2 << std::endl;
-
-        // std::copy(
-        //     traceback_indices.begin(), traceback_indices.end(),
-        //     std::ostream_iterator<std::pair<int, int>>(std::cout, " "));
 }

@@ -4,7 +4,6 @@
 #include <utility>
 #include <algorithm> // for copy
 #include <iterator> // for ostream_iterator
-#include "smith_waterman.h"
 
 
 template < typename T >
