@@ -9,7 +9,8 @@
 #include "benchmarking/data-generation.hpp"
 #include "assert.h"
 #include "smith_waterman_base.cpp"
-#include "smith_waterman_v1.cpp"
+#include "smith_waterman_windowed.cpp"
+#include "smith_waterman_striped.cpp"
 // #include "gnuplot-iostream.h"
 
 
@@ -21,7 +22,7 @@ struct compare_pairs
 			// std::cout << "New pair: " << std::endl;
             // std::cout << data.first << " " << data.second<< std::endl;
 			
-			smith_waterman(data);
+			smith_waterman_striped(data);
             return "0";
 		}
 };
@@ -29,7 +30,7 @@ struct compare_pairs
 
 int main()
 {
-	auto num_pairs  = 3u;
+	auto num_pairs  = 1u;
 	auto string_len = 1u << 15;
 
     // For random numbers, one must first seed the random number generator. This is the idiomatic

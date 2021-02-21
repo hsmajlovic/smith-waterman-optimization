@@ -8,14 +8,13 @@
 
 
 template < typename T >
-    void smith_waterman_v1(std::pair< T, T > sequences){
+    void smith_waterman_windowed(std::pair< T, T > sequences){
         // TODO: Switch everything to unsigned ints
         
         // instantiate a matrix 
         T s1 = sequences.first;
         T s2 = sequences.second;
         unsigned int size = s1.size();
-        // std::vector<std::vector<int>> matrix(size + 1, std::vector<int>(size + 1, 0));
 
         unsigned int window_size = 1u << 6;
         unsigned int batches_no = size / window_size;
@@ -47,12 +46,6 @@ template < typename T >
                         int temp = top_value - ((top_value - left_value) & ((top_value - left_value) >> (sizeof(int) * 8 - 1)));
                         int target_value = diagonal_value - ((diagonal_value - temp) & ((diagonal_value - temp) >> (sizeof(int) * 8 - 1)));  // std::max(diagonal_value, std::max(top_value, left_value));
                         window[i][j] = target_value - (target_value & (target_value >> (sizeof(int) * 8 - 1)));  // (target_value > 0) ? target_value : 0;
-                        // max_element = target_value - ((target_value - max_element) & ((target_value - max_element) >> (sizeof(int) * 8 - 1)));
-                        // temp = int(target_value != max_element);
-                        // int temp_i = temp * int(i);
-                        // max_element_i = max_element_i - ((max_element_i - temp_i) & ((max_element_i - temp_i) >> (sizeof(int) * 8 - 1)));
-                        // int temp_j = temp * int(j);
-                        // max_element_j = max_element_j - ((max_element_j - temp_j) & ((max_element_j - temp_j) >> (sizeof(int) * 8 - 1)));
                         if (target_value > max_element) {
                             max_element = target_value;
                             max_element_i = offset_i + i;
@@ -61,43 +54,12 @@ template < typename T >
                     }
                 }
 
-                // for (unsigned int i = 1; i < window_size; ++i) {
-                //     for (unsigned int j = 1; j < window_size; ++j) {
-                //         matrix[offset_i + i][offset_j + j] = window[i][j];
-                //     }
-                // }
-
                 for (unsigned int i = 0; i < window_size; ++i) {
                     top_leftover[i] = window[window_size - 1][i];
                     side_leftover[i] = window[i][window_size - 1];
                 }
             }
         }
-
-
-        // // populate the matrix
-        // for (unsigned int i=1; i<size1 + 1; ++i){
-        //     for(unsigned int j=1; j<size2 + 1; ++j) {
-        //         // Alternative: Declare here
-        //         diagonal_value = matrix[i-1][j-1] + (s1[i - 1] == s2[j - 1] ? match : mismatch);
-        //         top_value = matrix[i-1][j] + gaps;
-        //         left_value = matrix[i][j-1] + gaps;
-        //         int temp = top_value - ((top_value - left_value) & ((top_value - left_value) >> (sizeof(int) * 8 - 1)));
-        //         int target_value = diagonal_value - ((diagonal_value - temp) & ((diagonal_value - temp) >> (sizeof(int) * 8 - 1)));  // std::max(diagonal_value, std::max(top_value, left_value));
-        //         matrix[i][j] = target_value - (target_value & (target_value >> (sizeof(int) * 8 - 1)));  // (target_value > 0) ? target_value : 0;
-        //         // max_element = target_value - ((target_value - max_element) & ((target_value - max_element) >> (sizeof(int) * 8 - 1)));
-        //         // temp = int(target_value != max_element);
-        //         // int temp_i = temp * int(i);
-        //         // max_element_i = max_element_i - ((max_element_i - temp_i) & ((max_element_i - temp_i) >> (sizeof(int) * 8 - 1)));
-        //         // int temp_j = temp * int(j);
-        //         // max_element_j = max_element_j - ((max_element_j - temp_j) & ((max_element_j - temp_j) >> (sizeof(int) * 8 - 1)));
-        //         if (target_value > max_element) {
-        //             max_element = target_value;
-        //             max_element_i = i;
-        //             max_element_j = j;
-        //         }
-        //     }
-        // }
 
         std::cout << max_element << " " << max_element_i << " " << max_element_j << std::endl;
 
@@ -134,8 +96,4 @@ template < typename T >
         // std::reverse(alignment_str_2.begin(), alignment_str_2.end());
 
         // std::cout << alignment_str_1 << " " << alignment_str_2 << std::endl;
-
-        // std::copy(
-        //     traceback_indices.begin(), traceback_indices.end(),
-        //     std::ostream_iterator<std::pair<int, int>>(std::cout, " "));
 }
