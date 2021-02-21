@@ -7,9 +7,7 @@
 
 
 template < typename T >
-    void smith_waterman(std::pair< T, T > data){
-        // std::cout << data.first << " " << data.second<< std::endl;
-        
+    void smith_waterman_base(std::pair< T, T > data){
         // instantiate a matrix 
         std::vector<std::vector<int>> matrix(data.first.size() + 1,std::vector<int>(data.second.size() + 1,0));
         
@@ -69,8 +67,4 @@ template < typename T >
         // std::reverse(alignment_str_2.begin(), alignment_str_2.end());
 
         // std::cout << alignment_str_1 << " " << alignment_str_2 << std::endl;
-
-        // std::copy(
-        //     traceback_indices.begin(), traceback_indices.end(),
-        //     std::ostream_iterator<std::pair<int, int>>(std::cout, " "));
 }

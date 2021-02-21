@@ -1,5 +1,5 @@
 Run command:
-exe_path=benchmark_striped.out && g++ -Wall -Og -std=c++17 -o $exe_path benchmark.cpp && perf stat -e L1-dcache-load-misses:u,LLC-load-misses:u,cache-misses:u,cache-references:u,branch-misses:u,page-faults:u,cycles:u,L1-dcache-stores:u,instructions:u ./$exe_path
+version=base && exe_path=benchmark_${version}.out && g++ -Wall -Og -std=c++17 -o $exe_path benchmark.cpp && perf stat -e L1-dcache-load-misses:u,LLC-load-misses:u,cache-misses:u,cache-references:u,branch-misses:u,page-faults:u,cycles:u,L1-dcache-stores:u,instructions:u ./$exe_path $version
 
 Matrix traverse + max elem finding: Average time (us): 1.18967e+07
 Matrix traverse merged with elem finding: 1.00537e+07
