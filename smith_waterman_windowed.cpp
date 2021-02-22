@@ -25,7 +25,7 @@ template < typename T >
         T s2 = sequences.second;
         unsigned int size = s1.size();
 
-        unsigned int window_size = 1u << 6;
+        unsigned int window_size = 1u << 8;  // Experimental best: 1u << 8
         unsigned int batches_no = size / window_size;
         std::vector<int> top_leftover(window_size, 0);
         std::vector<int> side_leftover(window_size, 0);
