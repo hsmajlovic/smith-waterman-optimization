@@ -32,7 +32,7 @@ template < typename T >
         //     std::vector<int>::iterator row_max_iterator = std::max_element(matrix[i].begin(), matrix[i].end());
         //     if (*row_max_iterator > max_element) {
         //         max_element_i = i;
-        //         max_element_j = row_max_iterator - matrix[i].begin();  // Double check if O(1)
+        //         max_element_j = row_max_iterator - matrix[i].begin();
         //         max_element = *row_max_iterator;
         //     }
         // }
