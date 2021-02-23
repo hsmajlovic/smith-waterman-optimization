@@ -17,6 +17,7 @@ In order to benchmark the algorithm use `perf` (for now -- sorry non-linux users
 - For bithacked set `version=bithacked` in your bash
 - For bithacked-striped set `version=bithacked-striped` in your bash
 - For windowed set `version=windowed` in your bash
+
 and then do
 ```bash
 exe_path=benchmark_${version}.out && g++ -Wall -Og -std=c++17 -o $exe_path benchmark.cpp && perf stat -e L1-dcache-load-misses:u,LLC-load-misses:u,cache-misses:u,cache-references:u,branch-misses:u,page-faults:u,cycles:u,L1-dcache-stores:u,instructions:u ./$exe_path $version
