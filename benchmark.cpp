@@ -11,7 +11,9 @@
 #include "smith_waterman_base.cpp"
 #include "smith_waterman_windowed.cpp"
 #include "smith_waterman_striped.cpp"
-// #include "gnuplot-iostream.h"
+#include "smith_waterman_bithacked.cpp"
+#include "smith_waterman_bithacked_striped.cpp"
+
 
 
 struct base_sw
@@ -36,12 +38,34 @@ struct windowed_sw
 };
 
 
+struct bithacked_sw
+{
+	template < typename T >
+		T operator () ( std::pair< T, T > data ) const
+		{
+			smith_waterman_bithacked(data);
+            return "0";
+		}
+};
+
+
 struct striped_sw
 {
 	template < typename T >
 		T operator () ( std::pair< T, T > data ) const
 		{
 			smith_waterman_striped(data);
+            return "0";
+		}
+};
+
+
+struct bithacked_striped_sw
+{
+	template < typename T >
+		T operator () ( std::pair< T, T > data ) const
+		{
+			smith_waterman_bithacked_striped(data);
             return "0";
 		}
 };
@@ -59,6 +83,8 @@ int main(int argc, char** argv)
 	auto const test_cases = csc586::benchmark::uniform_rand_vec_of_vec< std::string >( num_pairs, string_len );
 	auto const run_time   = version == "striped" ? csc586::benchmark::benchmark(striped_sw{}, test_cases) :
 							version == "windowed" ? csc586::benchmark::benchmark(windowed_sw{}, test_cases) :
+							version == "bithacked" ? csc586::benchmark::benchmark(bithacked_sw{}, test_cases) :
+							version == "bithacked-striped" ? csc586::benchmark::benchmark(bithacked_striped_sw{}, test_cases) :
 							csc586::benchmark::benchmark(base_sw{}, test_cases);
 
     std::cout << "Average time (us): " << run_time << std::endl;
