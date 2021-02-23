@@ -1,5 +1,6 @@
 # smith-waterman-optimization
 Contributors: Ze Shi Li, Rohith Pudari, Haris Smajlovic
+
 Repository contains performance optimizations for Linear gap Smith-Waterman algorithm.
 
 ## Optimizations
