@@ -5,12 +5,12 @@
 #include <iostream>  // std::cout
 #include <string>
 #include <utility>
+#include <set>
 #include "benchmarking/timing.hpp"
 #include "benchmarking/data-generation.hpp"
 #include "assert.h"
 #include "smith_waterman_base.cpp"
 #include "smith_waterman_windowed.cpp"
-#include "smith_waterman_striped.cpp"
 #include "smith_waterman_bithacked.cpp"
 #include "smith_waterman_bithacked_striped.cpp"
 
@@ -49,17 +49,6 @@ struct bithacked_sw
 };
 
 
-struct striped_sw
-{
-	template < typename T >
-		T operator () ( std::pair< T, T > data ) const
-		{
-			smith_waterman_striped(data);
-            return "0";
-		}
-};
-
-
 struct bithacked_striped_sw
 {
 	template < typename T >
@@ -76,13 +65,17 @@ int main(int argc, char** argv)
 	auto num_pairs  = 1u;
 	auto string_len = 1u << 15;
 	std::string version(argv[argc - 1]);
+	std::string versions_list[] = { "base", "windowed", "bithacked", "bithacked-striped" };
+	std::set<std::string> versions (versions_list, versions_list+4);
+	const bool is_in = versions.find(version) != versions.end();
+	if (!is_in) std::cout << "Incorrect version provided: " << version << std::endl;
+	assert (is_in);
 
     // For random numbers, one must first seed the random number generator. This is the idiomatic
     // approach for the random number generator libraries that we have chosen.
     std::srand ( static_cast< uint32_t >( std::time(0) ) );
 	auto const test_cases = csc586::benchmark::uniform_rand_vec_of_vec< std::string >( num_pairs, string_len );
-	auto const run_time   = version == "striped" ? csc586::benchmark::benchmark(striped_sw{}, test_cases) :
-							version == "windowed" ? csc586::benchmark::benchmark(windowed_sw{}, test_cases) :
+	auto const run_time   = version == "windowed" ? csc586::benchmark::benchmark(windowed_sw{}, test_cases) :
 							version == "bithacked" ? csc586::benchmark::benchmark(bithacked_sw{}, test_cases) :
 							version == "bithacked-striped" ? csc586::benchmark::benchmark(bithacked_striped_sw{}, test_cases) :
 							csc586::benchmark::benchmark(base_sw{}, test_cases);
