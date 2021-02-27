@@ -50,22 +50,22 @@ template < typename T >
                     top_value        = _mm256_add_epi32 ( matrix[i-1][j], gap);
                     left_value       = _mm256_add_epi32 ( matrix[i][j - 1], gap) ;
                     top_left         = _mm256_sub_epi32 ( top_value, left_value );
-                    top_left_shifted = _mm256_srli_epi32( top_left,  (sizeof(int) * 8 - 1) );
+                    top_left_shifted = _mm256_srli_epi32( top_left,  31 );
                     top_left_and     = top_left & top_left_shifted;
                     temp             = _mm256_sub_epi32 ( top_value, top_left_and );
                     diagonal_temp    = _mm256_sub_epi32 ( diagonal_value, temp );
                     
                     diagonal_temp_and = diagonal_temp & diagonal_temp_shifted;
                     
-                    diagonal_temp_shifted  = _mm256_srli_epi32( diagonal_temp, (sizeof(int) * 8 - 1 ) );
+                    diagonal_temp_shifted  = _mm256_srli_epi32( diagonal_temp, 31 );
                     target_value           = _mm256_sub_epi32 ( diagonal_value, diagonal_temp_and );
-                    target_value_shifted   = _mm256_srli_epi32( target_value, ( sizeof(int) * 8 - 1 ) );
+                    target_value_shifted   = _mm256_srli_epi32( target_value, 31 );
                     
                     target_value_and       = target_value & target_value_shifted;
                     matrix[i][j]           = _mm256_sub_epi32 ( target_value, target_value_and );
 
                     max_target         = _mm256_sub_epi32(target_value, max_element);
-                    max_target_shifted = (max_target >> (sizeof(int) * 8 - 1));
+                    max_target_shifted = _mm256_srli_epi32(max_target, 31);
                     max_element        = _mm256_sub_epi32(target_value, (max_target & max_target_shifted));
                     
                     // if (target_value > max_element) {
@@ -75,8 +75,10 @@ template < typename T >
                     // }
                 }
             }
-            if (k % (1u << 9) == 0)
-                std::cout << max_element[0] << std::endl; // << " " << max_element_i[0] << " " << max_element_j[0] << std::endl;
+            if (k % (1u << 9) == 0) {
+                auto const vec = reinterpret_cast< int const * >( &max_element );
+                std::cout << vec[0] << std::endl;
+            }
         
             // // traceback
 
