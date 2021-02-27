@@ -103,6 +103,17 @@ template < typename Callable, typename Container >
 			/ static_cast< duration >( test_instances.size() );
 	}
 
+template < typename Callable, typename Container >
+	duration benchmark_once( Callable f, Container test_instances )
+	{
+		auto const start_time = std::chrono::steady_clock::now();
+		f(test_instances);
+		auto const end_time = std::chrono::steady_clock::now();
+
+		return std::chrono::duration_cast<std::chrono::microseconds>( end_time - start_time ).count()
+			/ static_cast< duration >( test_instances.size() );
+	}
+
 
 } // namespace benchmark
 } // namespace csc586
