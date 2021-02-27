@@ -1,5 +1,6 @@
 # smith-waterman-optimization
 _Created as a part of the CSC586C (Data Management on Modern Computer Architectures) course at University of Victoria under supervision of Sean Chester_
+
 Contributors: Ze Shi Li, Rohith Pudari, Haris Smajlovic.
 
 Repository contains performance optimizations for Linear gap Smith-Waterman algorithm.
