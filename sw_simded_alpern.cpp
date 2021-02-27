@@ -30,11 +30,7 @@ template < typename T >
             // __m256i max_element_j = _mm256_setzero_si256();
             
             // Auxiliary values
-            __m256i diagonal_value, top_value, left_value,
-                    top_left, top_left_shifted, temp, diagonal_temp,
-                    diagonal_temp_shifted, target_value, target_value_shifted,
-                    top_left_and, diagonal_temp_and, target_value_and,
-                    max_target_shifted, max_target;
+            __m256i diagonal_value, top_value, left_value, temp_value, target_value;
 
             // Construct next SIMD sized batch of chars
             std::vector<char*> i_seq(size, new char[sse_s]);
@@ -62,24 +58,12 @@ template < typename T >
                     left_value       = _mm256_add_epi32 ( matrix[i][j - 1], gap) ;
                     
                     // Calculate target_value ~ std::max(diagonal_value, std::max(top_value, left_value))
-                    top_left         = _mm256_sub_epi32 ( top_value, left_value );
-                    top_left_shifted = _mm256_srli_epi32( top_left,  31 );
-                    top_left_and     = top_left & top_left_shifted;
-                    temp             = _mm256_sub_epi32 ( top_value, top_left_and );
-                    diagonal_temp    = _mm256_sub_epi32 ( diagonal_value, temp );
-                    diagonal_temp_and = diagonal_temp & diagonal_temp_shifted;
-                    diagonal_temp_shifted  = _mm256_srli_epi32( diagonal_temp, 31 );
-                    target_value           = _mm256_sub_epi32 ( diagonal_value, diagonal_temp_and );
-
+                    temp_value = _mm256_max_epi32(top_value, left_value);
+                    target_value = _mm256_max_epi32(diagonal_value, temp_value);
                     // Calculate  matrix[i][j] ~ (target_value > 0) ? target_value : 0
-                    target_value_shifted   = _mm256_srli_epi32( target_value, 31 );
-                    target_value_and       = target_value & target_value_shifted;
-                    matrix[i][j]           = _mm256_sub_epi32 ( target_value, target_value_and );
-
+                    matrix[i][j] = _mm256_max_epi32(target_value, _mm256_setzero_si256());
                     // Update max_element and coordinates if the target_value is larger
-                    max_target         = _mm256_sub_epi32(target_value, max_element);
-                    max_target_shifted = _mm256_srli_epi32(max_target, 31);
-                    max_element        = _mm256_sub_epi32(target_value, (max_target & max_target_shifted));
+                    max_element = _mm256_max_epi32(max_element, target_value);
                     
                     // if (target_value > max_element) {
                     //     max_element = target_value;
