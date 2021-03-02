@@ -123,7 +123,7 @@ template < typename T >
 
 }
 
-
+#ifdef __AVX512F__
 template < typename T >
     void sw_simded_alpern_512(std::vector<std::pair< T, T >> sequences){
         // TODO switch from std::pair to using std::vector
@@ -239,3 +239,4 @@ template < typename T >
         }
 
 }
+#endif
