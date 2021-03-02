@@ -71,13 +71,15 @@ struct simded_alpern_256_sw
 		}
 };
 
-
 struct simded_alpern_512_sw
 {
 	template < typename T >
 		T operator () ( std::vector<std::pair< T, T >> data ) const
 		{
+			#ifdef __AVX512F__
 			sw_simded_alpern_512(data);
+			#endif
+
             return "0";
 		}
 };
