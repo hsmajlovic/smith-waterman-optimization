@@ -59,7 +59,7 @@ template < typename T >
                 for(unsigned int j = 1; j < size + 1; ++j) {
                     j_vectorized = _mm256_set1_epi32( j );
                     // match_val ~ data.first[i - 1] == data.second[j - 1] ? match : mismatch)
-                    mask = _mm256_cmpeq_epi32( i_seq[i - 1], j_seq[j - 1] );
+                    mask      = _mm256_cmpeq_epi32( i_seq[i - 1], j_seq[j - 1] );
                     match_val = _mm256_blendv_epi8( mismatch, match, mask );
                     
                     // diagonal_value ~ matrix[i-1][j-1] + match_val
