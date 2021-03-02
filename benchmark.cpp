@@ -22,7 +22,7 @@ struct base_sw
 	template < typename T >
 		T operator () ( std::pair< T, T > data ) const
 		{
-			smith_waterman_base(data);
+			sw_base(data);
             return "0";
 		}
 };
@@ -33,7 +33,7 @@ struct windowed_sw
 	template < typename T >
 		T operator () ( std::pair< T, T > data ) const
 		{
-			smith_waterman_windowed(data);
+			sw_windowed(data);
             return "0";
 		}
 };
@@ -44,7 +44,7 @@ struct bithacked_sw
 	template < typename T >
 		T operator () ( std::pair< T, T > data ) const
 		{
-			smith_waterman_bithacked(data);
+			sw_bithacked(data);
             return "0";
 		}
 };
@@ -55,7 +55,7 @@ struct bithacked_striped_sw
 	template < typename T >
 		T operator () ( std::pair< T, T > data ) const
 		{
-			smith_waterman_bithacked_striped(data);
+			sw_bithacked_striped(data);
             return "0";
 		}
 };

@@ -7,7 +7,7 @@
 
 
 template < typename T >
-    void smith_waterman_base(std::pair< T, T > data){
+    void sw_base(std::pair< T, T > data){
         // instantiate a matrix 
         std::vector<std::vector<int>> matrix(data.first.size() + 1,std::vector<int>(data.second.size() + 1,0));
 
