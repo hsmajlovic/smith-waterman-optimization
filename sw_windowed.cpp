@@ -19,7 +19,7 @@ the side_leftover and top_leftover are mocked with incorrect values.
 
 
 template < typename T >
-    void smith_waterman_windowed(std::pair< T, T > sequences){
+    void sw_windowed(std::pair< T, T > sequences){
         // instantiate a matrix 
         T s1 = sequences.first;
         T s2 = sequences.second;

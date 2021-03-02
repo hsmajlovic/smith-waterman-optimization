@@ -7,7 +7,7 @@
 
 
 template < typename T >
-    void smith_waterman_bithacked_striped(std::pair< T, T > sequences){
+    void sw_bithacked_striped(std::pair< T, T > sequences){
         // TODO: Switch everything to unsigned ints
         
         // instantiate a matrix 
