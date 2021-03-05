@@ -6,39 +6,49 @@
 #include <iterator> // for ostream_iterator
 #include "nmmintrin.h" // for SSE4.2
 #include "immintrin.h" // for AVX
+#include <omp.h>    // for multi-core parallelism
 
 
 template < typename T >
     void sw_simded_alpern_256(std::vector<std::pair< T, T >> sequences){
+        omp_set_num_threads( 5 );
+        const int num_threads = omp_get_max_threads();
+
         // TODO switch from std::pair to using std::vector
         // instantiate a matrix 
         unsigned int size     = sequences[0].first.size();
         unsigned int quantity = sequences.size();
-        std::vector<std::vector<__m256i>> matrix(size + 1, std::vector<__m256i>(size + 1));
+        
+        std::vector<std::vector<std::vector<__m256i>>> matrices(
+            num_threads, std::vector<std::vector<__m256i>>(size + 1, std::vector<__m256i>(size + 1)));
+
+        // SIMD size
+        unsigned int sse_s     = 8;
 
         // Instantiate SIMDed scores
         const __m256i gap      = _mm256_set1_epi32(-2);
         const __m256i mismatch =  _mm256_set1_epi32(-2);
         const __m256i match    =  _mm256_set1_epi32(3);
 
-        // Target SIMDed values
-        __m256i max_element, max_element_i, max_element_j;
-
-        // Auxiliary values
-        __m256i diagonal_value, top_value, left_value, temp_value,
-                target_value, i_vectorized, j_vectorized, max_element_updated,
-                mask, match_val;
-        
-        // SIMD size
-        unsigned int sse_s     = 8;
-
-        // Char batching containers
-        std::vector<__m256i> i_seq( size );
-        std::vector<__m256i> j_seq( size );
-        int char_batch_i[ sse_s ];
-        int char_batch_j[ sse_s ];
-
+        #pragma omp parallel for
         for (unsigned int k = 0; k < quantity; k += sse_s) {
+            const int t = omp_get_thread_num();
+            
+            // Target SIMDed values
+            __m256i max_element, max_element_i, max_element_j;
+
+            // Auxiliary values
+            __m256i diagonal_value, top_value, left_value, temp_value,
+                    target_value, i_vectorized, j_vectorized, max_element_updated,
+                    mask, match_val;
+                
+            // Char batching containers
+            std::vector<__m256i> i_seq( size );
+            std::vector<__m256i> j_seq( size );
+            int char_batch_i[ sse_s ];
+            int char_batch_j[ sse_s ];
+            
+            
             // Set target values
             max_element   = _mm256_setzero_si256();
             max_element_i = _mm256_setzero_si256();
@@ -63,17 +73,17 @@ template < typename T >
                     match_val = _mm256_blendv_epi8( mismatch, match, mask );
                     
                     // diagonal_value ~ matrix[i-1][j-1] + match_val
-                    diagonal_value   = _mm256_add_epi32 ( matrix[i-1][j - 1], match_val );
+                    diagonal_value   = _mm256_add_epi32 ( matrices[t][i-1][j - 1], match_val );
                     // top_value ~ matrix[i-1][j] + gap
-                    top_value        = _mm256_add_epi32 ( matrix[i-1][j], gap );
+                    top_value        = _mm256_add_epi32 ( matrices[t][i-1][j], gap );
                     // left_value ~ matrix[i][j-1] + gap
-                    left_value       = _mm256_add_epi32 ( matrix[i][j - 1], gap) ;
+                    left_value       = _mm256_add_epi32 ( matrices[t][i][j - 1], gap) ;
                     
                     // Calculate target_value ~ std::max(diagonal_value, std::max(top_value, left_value))
                     temp_value    = _mm256_max_epi32( top_value, left_value );
                     target_value  = _mm256_max_epi32( diagonal_value, temp_value );
                     // Calculate  matrix[i][j] ~ (target_value > 0) ? target_value : 0
-                    matrix[i][j]  = _mm256_max_epi32( target_value, _mm256_setzero_si256() );
+                    matrices[t][i][j]  = _mm256_max_epi32( target_value, _mm256_setzero_si256() );
                     // Update max_element and coordinates if the target_value is larger
                     max_element         = _mm256_max_epi32( max_element, target_value );
                     max_element_updated = _mm256_cmpeq_epi32( max_element, target_value );
