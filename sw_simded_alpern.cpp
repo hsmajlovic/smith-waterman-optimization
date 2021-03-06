@@ -8,7 +8,6 @@
 #include "immintrin.h" // for AVX
 
 
-
 #ifdef __AVX2__
 template < typename T >
 void sw_simded_alpern_256(std::vector<std::pair< T, T >> const sequences, unsigned int const quantity, unsigned int const size){
