@@ -14,7 +14,7 @@ So far we have a `baseline`, `bithacked`, `bithacked-striped`, `windowed` and `s
 - Bithacked: Baseline version with heavy branching replaced with bithacks.
 - Bithacked-striped: Bithacked version with an access pattern that is more L1 cache friendly.
 - Windowed: A version of hypothetical scenario in which dynamic programming matrix is not needed and only the maximum value in the matrix is searched for.
-- SIMDed (Alpern technique): A SIMDed baseline using 512bit, if CPU supports AVX-512, or otherwise 256bit wide registers and inter-alignment technique from [Alpern et al](https://dl.acm.org/doi/10.1145/224170.224222).
+- SIMDed (Alpern technique): A SIMDed baseline using widest registers that your CPU supports and inter-alignment technique from [Alpern et al](https://dl.acm.org/doi/10.1145/224170.224222). (Note that currently only 512bit and 256bit registers are supported) 
 
 ## Testing
 In order to benchmark the algorithm use `perf` (for now -- sorry non-linux users). So just compile `benchmark.cpp` and then run `perf` on the executable. Don't forget to provide version string as a CLI argument.
