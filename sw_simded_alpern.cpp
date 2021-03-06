@@ -16,6 +16,7 @@ template < typename T >
         unsigned int quantity = sequences.size();
 
         #ifdef __AVX512F__
+        std::cout << "Using 512 bits wide registers ... " << std::endl;
         std::vector<std::vector<__m512i>> matrix(size + 1, std::vector<__m512i>(size + 1));
 
         // Instantiate SIMDed scores
@@ -124,6 +125,7 @@ template < typename T >
 
         }
         #elif __AVX2__
+        std::cout << "Using 256 bits wide registers ... " << std::endl;
         std::vector<std::vector<__m256i>> matrix(size + 1, std::vector<__m256i>(size + 1));
 
         // Instantiate SIMDed scores
