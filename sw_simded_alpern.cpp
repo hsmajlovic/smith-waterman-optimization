@@ -248,6 +248,6 @@ template < typename T >
         std::cout << "Using 256 bits wide registers ... " << std::endl;
         sw_simded_alpern_256(sequences, quantity, size);
         #else
-        std::cout << "Your CPU supprots SIMD intructions that are required to run this code. This implementation expects either AVX2 or AVX512 support." << std::endl;
+        std::cout << "Your CPU supports SIMD instructions that are required to run this code. This implementation expects either AVX2 or AVX512 support." << std::endl;
         #endif
     }
