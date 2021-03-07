@@ -7,7 +7,7 @@
 
 
 template < typename T >
-void trace_back(
+void traceback(
         std::pair<std::string, std::string> sequence_pair,
         std::vector<std::vector<T>> matrix,
         int max_element_i, int max_element_j,
