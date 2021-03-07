@@ -6,6 +6,7 @@
 #include <iterator> // for ostream_iterator
 #include "nmmintrin.h" // for SSE4.2
 #include "immintrin.h" // for AVX
+#include "traceback.cpp"
 
 
 #ifdef __AVX2__
@@ -82,39 +83,8 @@ std::vector<std::vector<__m256i>> matrix(size + 1, std::vector<__m256i>(size + 1
             std::cout << vec[0] << std::endl;
         }
     
-        // // traceback
-
-        // std::vector<std::pair<int, int>> traceback_indices;
-        // std::string alignment_str_1("");
-        // std::string alignment_str_2("");
-        // int current_i = max_element_i;
-        // int current_j = max_element_j;
-        // while (matrix[current_i][current_j]) {
-        //     traceback_indices.push_back(std::make_pair(current_i, current_j));
-        //     diagonal_value = matrix[current_i][current_j] - (s1[current_i - 1] == s2[current_j - 1] ? match : mismatch);
-        //     top_value = matrix[current_i][current_j] - gaps;
-        //     left_value = matrix[current_i][current_j] - gaps;
-        //     if (diagonal_value == matrix[current_i-1][current_j-1]) {
-        //         current_i = current_i - 1;
-        //         current_j = current_j - 1;
-        //         alignment_str_1 += s1[current_i];
-        //         alignment_str_2 += s2[current_j];
-        //     } else if (top_value == matrix[current_i-1][current_j]) {
-        //         current_i = current_i - 1;
-        //         alignment_str_1 += s1[current_i];
-        //         alignment_str_2 += '-';
-        //     } else {
-        //         current_j = current_j - 1;
-        //         alignment_str_1 += '-';
-        //         alignment_str_2 += s2[current_j];
-        //     }
-        // }
-
-        // std::reverse(alignment_str_1.begin(), alignment_str_1.end());
-        // std::reverse(alignment_str_2.begin(), alignment_str_2.end());
-
-        // std::cout << alignment_str_1 << " " << alignment_str_2 << std::endl;
-
+        // // Traceback
+        // traceback(matrix, max_element_i, max_element_j);
     }
 }
 #endif
@@ -196,39 +166,8 @@ void sw_simded_alpern_512(std::vector<std::pair< T, T >> const sequences, unsign
             std::cout << vec[0] << std::endl;
         }
     
-        // // traceback
-
-        // std::vector<std::pair<int, int>> traceback_indices;
-        // std::string alignment_str_1("");
-        // std::string alignment_str_2("");
-        // int current_i = max_element_i;
-        // int current_j = max_element_j;
-        // while (matrix[current_i][current_j]) {
-        //     traceback_indices.push_back(std::make_pair(current_i, current_j));
-        //     diagonal_value = matrix[current_i][current_j] - (s1[current_i - 1] == s2[current_j - 1] ? match : mismatch);
-        //     top_value = matrix[current_i][current_j] - gaps;
-        //     left_value = matrix[current_i][current_j] - gaps;
-        //     if (diagonal_value == matrix[current_i-1][current_j-1]) {
-        //         current_i = current_i - 1;
-        //         current_j = current_j - 1;
-        //         alignment_str_1 += s1[current_i];
-        //         alignment_str_2 += s2[current_j];
-        //     } else if (top_value == matrix[current_i-1][current_j]) {
-        //         current_i = current_i - 1;
-        //         alignment_str_1 += s1[current_i];
-        //         alignment_str_2 += '-';
-        //     } else {
-        //         current_j = current_j - 1;
-        //         alignment_str_1 += '-';
-        //         alignment_str_2 += s2[current_j];
-        //     }
-        // }
-
-        // std::reverse(alignment_str_1.begin(), alignment_str_1.end());
-        // std::reverse(alignment_str_2.begin(), alignment_str_2.end());
-
-        // std::cout << alignment_str_1 << " " << alignment_str_2 << std::endl;
-
+        // // Traceback
+        // traceback(matrix, max_element_i, max_element_j);
     }
 }
 #endif

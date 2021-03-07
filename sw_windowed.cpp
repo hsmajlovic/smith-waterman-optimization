@@ -16,6 +16,7 @@ the side_leftover and top_leftover are mocked with incorrect values.
 #include <utility>
 #include <algorithm> // for copy
 #include <iterator> // for ostream_iterator
+#include "traceback.cpp"
 
 
 template < typename T >
