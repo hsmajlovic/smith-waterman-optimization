@@ -11,7 +11,6 @@
 
 template < typename T >
     void sw_simded_alpern_256(std::vector<std::pair< T, T >> sequences){
-        omp_set_num_threads( 5 );
         const int num_threads = omp_get_max_threads();
 
         // TODO switch from std::pair to using std::vector
@@ -47,7 +46,6 @@ template < typename T >
             std::vector<__m256i> j_seq( size );
             int char_batch_i[ sse_s ];
             int char_batch_j[ sse_s ];
-            
             
             // Set target values
             max_element   = _mm256_setzero_si256();
