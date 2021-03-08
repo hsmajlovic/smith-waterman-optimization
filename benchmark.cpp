@@ -86,7 +86,7 @@ struct parallel_alpern_sw
 
 int main(int argc, char** argv)
 {
-	auto num_pairs  = 1u << 10;
+	auto num_pairs  = 1u << 14;
 	auto string_len = 1u << 10;
 	std::string version(argv[argc - 1]);
 	std::vector<std::string> versions_list = { 
