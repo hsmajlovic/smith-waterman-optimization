@@ -14,7 +14,7 @@
 #include "sw_bithacked.cpp"
 #include "sw_bithacked_striped.cpp"
 #include "sw_simded_alpern.cpp"
-#include "sw_parallel.cpp"
+#include "sw_multicore_alpern.cpp"
 
 
 
@@ -73,12 +73,12 @@ struct simded_alpern_sw
 };
 
 
-struct parallel_alpern_sw
+struct multicore_alpern_sw
 {
 	template < typename T >
 		T operator () ( std::vector<std::pair< T, T >> data ) const
 		{
-			sw_parallel_alpern(data);
+			sw_multicore_alpern(data);
             return "0";
 		}
 };
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 	auto string_len = 1u << 10;
 	std::string version(argv[argc - 1]);
 	std::vector<std::string> versions_list = { 
-		"base", "windowed", "bithacked", "bithacked-striped", "simd-alpern", "parallel-alpern"};
+		"base", "windowed", "bithacked", "bithacked-striped", "simd-alpern", "multicore-alpern"};
 	std::set<std::string> versions (versions_list.begin(), versions_list.end());
 	const bool is_in = versions.find(version) != versions.end();
 	if (!is_in) std::cout << "Incorrect version provided: " << version << std::endl;
@@ -100,7 +100,7 @@ int main(int argc, char** argv)
     // approach for the random number generator libraries that we have chosen.
     std::srand ( static_cast< uint32_t >( std::time(0) ) );
 	auto const test_cases = csc586::benchmark::uniform_rand_vec_of_vec< std::string >( num_pairs, string_len );
-	auto const run_time   = version == "parallel-alpern" ? csc586::benchmark::benchmark_once(parallel_alpern_sw{}, test_cases) :
+	auto const run_time   = version == "multicore-alpern" ? csc586::benchmark::benchmark_once(multicore_alpern_sw{}, test_cases) :
 							version == "simd-alpern" ? csc586::benchmark::benchmark_once(simded_alpern_sw{}, test_cases) :
 							version == "windowed" ? csc586::benchmark::benchmark(windowed_sw{}, test_cases) :
 							version == "bithacked" ? csc586::benchmark::benchmark(bithacked_sw{}, test_cases) :
