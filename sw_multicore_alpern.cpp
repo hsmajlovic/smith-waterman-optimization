@@ -212,12 +212,8 @@ template < typename T >
         unsigned int const quantity = sequences.size();
 
         #ifdef __AVX512F__
-        std::cout << "Using 512 bits wide registers ... " << std::endl;
         sw_multicore_alpern_512(sequences, quantity, size);
         #elif defined __AVX2__
-        std::cout << "Using 256 bits wide registers ... " << std::endl;
         sw_multicore_alpern_256(sequences, quantity, size);
-        #else
-        std::cout << "Your CPU does not support SIMD instructions that are required to run this code. This implementation expects either AVX2 or AVX512 support." << std::endl;
         #endif
     }
