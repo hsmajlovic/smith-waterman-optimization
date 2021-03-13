@@ -1,6 +1,11 @@
-/**
- * A small application to benchmark the performance of hand-built sort algorithms.
- */
+#ifdef __AVX512F__
+#define SSE_S 16
+#elif __AVX2__
+#define SSE_S 8
+#else
+#define SSE_S 0
+#endif
+
 
 #include <iostream>  // std::cout
 #include <string>
@@ -15,7 +20,6 @@
 #include "sw_bithacked_striped.cpp"
 #include "sw_simded_alpern.cpp"
 #include "sw_multicore_alpern.cpp"
-
 
 
 struct base_sw
