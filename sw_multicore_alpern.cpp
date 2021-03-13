@@ -14,7 +14,6 @@
 template < typename T >
 void sw_multicore_alpern_256(std::vector<std::pair< T, T >> const sequences, unsigned int const quantity, unsigned int const size){
     // Threads number
-    omp_set_num_threads( 2 );
     const int num_threads = omp_get_max_threads();
 
     // Instantiate matrices for reduction
@@ -111,7 +110,6 @@ void sw_multicore_alpern_256(std::vector<std::pair< T, T >> const sequences, uns
 template < typename T >
 void sw_multicore_alpern_512(std::vector<std::pair< T, T >> const sequences, unsigned int const quantity, unsigned int const size){
     // Threads number
-    omp_set_num_threads( 2 );
     const int num_threads = omp_get_max_threads();
 
     // Instantiate matrices for reduction

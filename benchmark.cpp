@@ -100,6 +100,8 @@ int main(int argc, char** argv)
 
 	auto num_pairs  = 1u << 14;
 	auto string_len = 1u << 10;
+	omp_set_num_threads( 2 );
+	
 	std::string version(argv[argc - 1]);
 	std::vector<std::string> versions_list = { 
 		"base", "windowed", "bithacked", "bithacked-striped", "simd-alpern", "multicore-alpern"};
