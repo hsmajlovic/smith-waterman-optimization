@@ -14,29 +14,40 @@ the side_leftover and top_leftover are mocked with incorrect values.
 #include <string>
 #include <vector>
 #include <utility>
+#include <omp.h>
 #include <algorithm> // for copy
 #include <iterator> // for ostream_iterator
 #include "traceback.cpp"
 
 
 template < typename T >
-    void sw_windowed(std::vector<std::pair< T, T >> const sequences){
+    void sw_multicore_windowed(std::vector<std::pair< T, T >> const sequences){
 
-        // TODO switch from std::pair to using std::vector
         unsigned int const quantity = sequences.size();
+ 
+        // Threads number
+        const int num_threads = omp_get_max_threads();
 
+        // Setup sizes
+        unsigned int size = sequences[0].first.size();
+        unsigned int window_size = 1u << 8;  // Experimental best: 1u << 8, still 1u << 8 for some reason
+
+        // Instantiate matrices for reduction
+        std::vector<std::vector<std::vector<int>>> windows(
+            num_threads, std::vector<std::vector<int>>( window_size + 1, std::vector<int>( window_size + 1 )));
+        
+        #pragma omp parallel for
         for (unsigned int s =0; s< quantity; ++s) {
-       
+            const int t = omp_get_thread_num();
+
             // instantiate a matrix 
             T s1 = sequences[s].first;
             T s2 = sequences[s].second;
             unsigned int size = s1.size();
 
-            unsigned int window_size = 1u << 8;  // Experimental best: 1u << 8
             unsigned int batches_no = size / window_size;
             std::vector<int> top_leftover(window_size, 0);
             std::vector<int> side_leftover(window_size, 0);
-            std::vector<std::vector<int>> window(window_size + 1, std::vector<int>(window_size + 1, 0));
 
             int gaps(-2), mismatch(-2), match(3), max_element(0);
             unsigned int max_element_i(0), max_element_j(0);
@@ -50,18 +61,18 @@ template < typename T >
                     T s2_piece = s2.substr(offset_j, offset_j + window_size);
                     
                     for (unsigned int i = 0; i < window_size; ++i) {
-                        window[0][i] = top_leftover[i];
-                        window[i][0] = side_leftover[i];
+                        windows[t][0][i] = top_leftover[i];
+                        windows[t][i][0] = side_leftover[i];
                     }
                     
                     for (unsigned int i = 1; i < window_size; ++i) {
                         for (unsigned int j = 1; j < window_size; ++j) {
-                            diagonal_value = window[i-1][j-1] + (s1_piece[i - 1] == s2_piece[j - 1] ? match : mismatch);
-                            top_value = window[i-1][j] + gaps;
-                            left_value = window[i][j-1] + gaps;
+                            diagonal_value = windows[t][i-1][j-1] + (s1_piece[i - 1] == s2_piece[j - 1] ? match : mismatch);
+                            top_value = windows[t][i-1][j] + gaps;
+                            left_value = windows[t][i][j-1] + gaps;
                             int temp = top_value - ((top_value - left_value) & ((top_value - left_value) >> (sizeof(int) * 8 - 1)));
                             int target_value = diagonal_value - ((diagonal_value - temp) & ((diagonal_value - temp) >> (sizeof(int) * 8 - 1)));  // std::max(diagonal_value, std::max(top_value, left_value));
-                            window[i][j] = target_value - (target_value & (target_value >> (sizeof(int) * 8 - 1)));  // (target_value > 0) ? target_value : 0;
+                            windows[t][i][j] = target_value - (target_value & (target_value >> (sizeof(int) * 8 - 1)));  // (target_value > 0) ? target_value : 0;
                             if (target_value > max_element) {
                                 max_element = target_value;
                                 max_element_i = offset_i + i;
@@ -71,8 +82,8 @@ template < typename T >
                     }
 
                     for (unsigned int i = 0; i < window_size; ++i) {
-                        top_leftover[i] = window[window_size - 1][i];
-                        side_leftover[i] = window[i][window_size - 1];
+                        top_leftover[i] = windows[t][window_size - 1][i];
+                        side_leftover[i] = windows[t][i][window_size - 1];
                     }
                 }
             }
