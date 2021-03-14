@@ -14,6 +14,7 @@ So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-window
 - Bithacked: Baseline version with heavy branching replaced with bithacks.
 - Bithacked-striped: Bithacked version with an access pattern that is more L1 cache friendly.
 - Windowed: A version of hypothetical scenario in which dynamic programming matrix is not needed and only the maximum value in the matrix is searched for.
+- Multicore-windowed: Using the technique above, spreads across multiple CPU cores.
 - SIMDed (Alpern technique): A SIMDed baseline using widest registers that your CPU supports and inter-alignment technique from [Alpern et al](https://dl.acm.org/doi/10.1145/224170.224222). (Note that currently only 512bit and 256bit registers are supported) 
 - Multicore (Alpern technique): Just a SIMDed technique above spread accross multiple CPU cores.
 

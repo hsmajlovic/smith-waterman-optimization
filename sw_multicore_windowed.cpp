@@ -23,7 +23,6 @@ the side_leftover and top_leftover are mocked with incorrect values.
 template < typename T >
     void sw_multicore_windowed(std::vector<std::pair< T, T >> const sequences){
 
-        // TODO switch from std::pair to using std::vector
         unsigned int const quantity = sequences.size();
  
         // Threads number
