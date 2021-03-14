@@ -3,7 +3,7 @@ _Created as a part of the CSC586C (Data Management on Modern Computer Architectu
 
 Contributors: Ze Shi Li, Rohith Pudari, Haris Smajlovic.
 
-Repository contains performance optimizations for Linear gap Smith-Waterman algorithm.
+Repository contains performance optimizations for [Linear gap Smith-Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm#Linear).
 
 ## Optimizations
 
