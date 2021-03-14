@@ -9,7 +9,7 @@ Repository contains performance optimizations for Linear gap Smith-Waterman algo
 
 **Note: Check if your CPU supports AVX2 and/or AVX-512 first. Otherwise the SIMD benchmark will still run, but with no valid results.**
 
-So far we have a `baseline`, `bithacked`, `bithacked-striped`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm.
+So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-windowed`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm.
 - Baseline: A straight forward baseline version of the SW algorithm.
 - Bithacked: Baseline version with heavy branching replaced with bithacks.
 - Bithacked-striped: Bithacked version with an access pattern that is more L1 cache friendly.
@@ -25,6 +25,7 @@ In order to benchmark the algorithm use `perf` (for now -- sorry non-linux users
 - For bithacked set `version=bithacked` in your bash
 - For bithacked-striped set `version=bithacked-striped` in your bash
 - For windowed set `version=windowed` in your bash
+- For multicore-windowed set `version=multicore-windowed` in your bash
 - For SIMDed (Alpern technique) set `version=simd-alpern` in your bash
 - For multicore set `version=multicore-alpern` in your bash
 
