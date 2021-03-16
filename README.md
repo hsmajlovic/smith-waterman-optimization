@@ -39,7 +39,7 @@ perf stat -e cycles:u,instructions:u ./$exe_path $version
 
 ### Results
 
-| Version        | insn per cycle  | Sec  |
+| Version        | insn per cycle  | Seconds  |
 | ------------- |:-------------:| -----:|
 | Bithacked-striped (optimised-base) | 2.77 | 41.50 |
 | SIMD-alpern | 2.95      |   3.76 |
