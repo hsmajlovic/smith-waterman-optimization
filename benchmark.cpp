@@ -110,9 +110,9 @@ int main(int argc, char** argv)
 	std::cout << "Your CPU does not support SIMD instructions that are required to run this code. This implementation expects either AVX2 or AVX512 support." << std::endl;
 	#endif
 
-	auto num_pairs  = 1u << 6;
-	auto string_len = 1u << 14;
-	omp_set_num_threads( 4 );
+	auto num_pairs  = 1u << 13;
+	auto string_len = 1u << 10;
+	omp_set_num_threads( 2 );
 	
 	std::string version(argv[argc - 1]);
 	std::vector<std::string> versions_list = { 

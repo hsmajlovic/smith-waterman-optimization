@@ -36,3 +36,11 @@ exe_path=benchmark_${version}.out && \
 g++ -march=native -fopenmp -Wall -Og -std=c++17 -o $exe_path benchmark.cpp && \
 perf stat -e cycles:u,instructions:u ./$exe_path $version
 ```
+
+### Results
+
+| Version        | insn per cycle  | Seconds  |
+| ------------- |:-------------:| -----:|
+| Bithacked-striped (optimised-base) | 2.77 | 41.50 |
+| SIMD-alpern | 2.95      |   3.76 |
+| multicore-alpern | 2.26  | 2.45 |
