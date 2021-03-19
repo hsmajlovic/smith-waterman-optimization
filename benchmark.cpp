@@ -70,7 +70,7 @@ struct bithacked_sw
 struct bithacked_striped_sw
 {
 	template < typename T >
-		T operator () ( std::pair< T, T > data ) const
+		T operator () ( std::vector<std::pair< T, T >>  data ) const
 		{
 			sw_bithacked_striped(data);
             return "0";
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 
 	auto num_pairs  = 1u << 13;
 	auto string_len = 1u << 10;
-	omp_set_num_threads( 2 );
+	omp_set_num_threads( 1 );
 	
 	std::string version(argv[argc - 1]);
 	std::vector<std::string> versions_list = { 
@@ -131,7 +131,7 @@ int main(int argc, char** argv)
 							version == "multicore-windowed" ? csc586::benchmark::benchmark_once(multicore_windowed_sw{}, test_cases) :
 							version == "windowed" ? csc586::benchmark::benchmark_once(windowed_sw{}, test_cases) :
 							version == "bithacked" ? csc586::benchmark::benchmark(bithacked_sw{}, test_cases) :
-							version == "bithacked-striped" ? csc586::benchmark::benchmark(bithacked_striped_sw{}, test_cases) :
+							version == "bithacked-striped" ? csc586::benchmark::benchmark_once(bithacked_striped_sw{}, test_cases) :
 							csc586::benchmark::benchmark(base_sw{}, test_cases);
 
     std::cout << "Average time (us): " << run_time << std::endl;
