@@ -212,7 +212,7 @@ template < typename T >
         #elif defined __SSE2__ && defined __SSE4_1__
         std::cout << "Using 128 bits wide registers over 4 elements per register ..." << std::endl;
         #else
-        std::cout << "Your CPU does not support SIMD instructions that are required to run this code. This implementation expects either AVX2 or AVX512 support." << std::endl;
+        std::cout << "Your CPU does not support SIMD instructions that are required to run this code. This implementation expects either SSE4.1, AVX2 or AVX512 support." << std::endl;
         #endif
         
         // TODO switch from std::pair to using std::vector
