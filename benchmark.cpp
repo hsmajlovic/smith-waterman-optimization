@@ -2,6 +2,8 @@
 #define SSE_S 16
 #elif defined __AVX2__
 #define SSE_S 8
+#elif defined __SSE2__ && defined __SSE4_1__
+#define SSE_S 4
 #else
 #define SSE_S 0
 #endif
@@ -101,14 +103,6 @@ struct multicore_alpern_sw
 
 int main(int argc, char** argv)
 {
-	#ifdef __AVX512F__
-	std::cout << "Using 512 bits wide registers over 16 elements per register ..." << std::endl;
-	#elif defined __AVX2__
-	std::cout << "Using 256 bits wide registers over 8 elements per register ..." << std::endl;
-	#else
-	std::cout << "Your CPU does not support SIMD instructions that are required to run this code. This implementation expects either AVX2 or AVX512 support." << std::endl;
-	#endif
-
 	auto num_pairs  = 1u << 13;
 	auto string_len = 1u << 10;
 	omp_set_num_threads( 1 );
