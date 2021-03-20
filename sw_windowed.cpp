@@ -76,7 +76,7 @@ template < typename T >
                     }
                 }
             }
-            //std::cout << max_element << " " << max_element_i << " " << max_element_j << std::endl;
+            std::cout << max_element << " " << max_element_i << " " << max_element_j << std::endl;
         }
 
         

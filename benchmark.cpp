@@ -16,12 +16,11 @@
 #include "assert.h"
 #include "sw_base.cpp"
 #include "sw_windowed.cpp"
-#include "sw_multicore_windowed.cpp"
+#include "sw_parallel_windowed.cpp"
 #include "sw_bithacked.cpp"
 #include "sw_bithacked_striped.cpp"
 #include "sw_simded_alpern.cpp"
 #include "sw_multicore_alpern.cpp"
-
 
 
 struct base_sw
@@ -45,12 +44,12 @@ struct windowed_sw
 		}
 };
 
-struct multicore_windowed_sw
+struct parallel_windowed_sw
 {
 	template < typename T >
 		T operator () ( std::vector<std::pair< T, T >> data  ) const
 		{
-			sw_multicore_windowed(data);
+			sw_parallel_windowed(data);
             return "0";
 		}
 };
@@ -116,7 +115,7 @@ int main(int argc, char** argv)
 	
 	std::string version(argv[argc - 1]);
 	std::vector<std::string> versions_list = { 
-		"base", "windowed", "multicore-windowed", "bithacked", "bithacked-striped", "simd-alpern", "multicore-alpern"};
+		"base", "windowed", "parallel-windowed", "bithacked", "bithacked-striped", "simd-alpern", "multicore-alpern"};
 	std::set<std::string> versions (versions_list.begin(), versions_list.end());
 	const bool is_in = versions.find(version) != versions.end();
 	if (!is_in) std::cout << "Incorrect version provided: " << version << std::endl;
@@ -128,7 +127,7 @@ int main(int argc, char** argv)
 	auto const test_cases = csc586::benchmark::uniform_rand_vec_of_vec< std::string >( num_pairs, string_len );
 	auto const run_time   = version == "multicore-alpern" ? csc586::benchmark::benchmark_once(multicore_alpern_sw{}, test_cases) :
 							version == "simd-alpern" ? csc586::benchmark::benchmark_once(simded_alpern_sw{}, test_cases) :
-							version == "multicore-windowed" ? csc586::benchmark::benchmark_once(multicore_windowed_sw{}, test_cases) :
+							version == "parallel-windowed" ? csc586::benchmark::benchmark_once(parallel_windowed_sw{}, test_cases) :
 							version == "windowed" ? csc586::benchmark::benchmark_once(windowed_sw{}, test_cases) :
 							version == "bithacked" ? csc586::benchmark::benchmark(bithacked_sw{}, test_cases) :
 							version == "bithacked-striped" ? csc586::benchmark::benchmark_once(bithacked_striped_sw{}, test_cases) :
