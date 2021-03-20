@@ -150,5 +150,7 @@ template < typename T >
 
         #ifdef __AVX2__
         sw_parallel_windowed_256(sequences, quantity, size);
+        #else
+        std::cout << "Parallel windowed works only with AVX2." << std::endl;
         #endif
     }
