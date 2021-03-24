@@ -1,11 +1,13 @@
-#ifdef __AVX512F__
-#define SSE_S 16
-#elif defined __AVX2__
-#define SSE_S 8
-#elif defined __SSE2__ && defined __SSE4_1__
-#define SSE_S 4
-#else
-#define SSE_S 0
+#ifndef SSE_S
+	#ifdef __AVX512F__
+	#define SSE_S 16
+	#elif defined __AVX2__
+	#define SSE_S 8
+	#elif defined __SSE2__ && defined __SSE4_1__
+	#define SSE_S 4
+	#else
+	#define SSE_S 1
+	#endif
 #endif
 
 
@@ -105,7 +107,7 @@ int main(int argc, char** argv)
 {
 	auto num_pairs  = 1u << 13;
 	auto string_len = 1u << 10;
-	omp_set_num_threads( 1 );
+	omp_set_num_threads( THRD_CNT );
 	
 	std::string version(argv[argc - 1]);
 	std::vector<std::string> versions_list = { 
