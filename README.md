@@ -33,7 +33,7 @@ In order to benchmark the algorithm use `perf` (for now -- sorry non-linux users
 and then do
 ```bash
 exe_path=benchmark_${version}.out && \
-g++ -march=native -fopenmp -Wall -Og -std=c++17 -o $exe_path benchmark.cpp && \
+g++ -D THRD_CNT=2 -march=native -fopenmp -Wall -Og -std=c++17 -o $exe_path benchmark.cpp && \
 perf stat -e cycles:u,instructions:u ./$exe_path $version
 ```
 
