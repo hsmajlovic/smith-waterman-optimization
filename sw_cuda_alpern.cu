@@ -31,7 +31,7 @@ void align(int16_t *scores, dp_mat *matrices, char *sequences, size_t size) {
         for( int16_t j = 1; j < size + 1; ++j ) {
             diagonal_value = matrices[ t ][ i - 1 ][ j - 1 ];
             diagonal_value += (
-                sequences[ t * size * 2 + i - 1 ] == sequences[t * size * 2 + j - 1 + size] ? match : mismatch);
+                sequences[ t * size * 2 + i - 1 ] == sequences[ t * size * 2 + j - 1 + size ] ? match : mismatch);
             top_value = matrices[ t ][ i - 1 ][ j ] + gap;
             left_value = matrices[ t ][ i ][ j - 1 ] + gap;
             
@@ -102,6 +102,7 @@ void sw_cuda_alpern(std::vector<std::pair<std::string, std::string>> const seque
     // Send the data to device
     auto const start_time_2 = std::chrono::steady_clock::now();
     cudaMemcpy( dev_input, sequences_bytes, input_size, cudaMemcpyHostToDevice );
+    cudaDeviceSynchronize();
     auto const end_time_2 = std::chrono::steady_clock::now();
 	std::cout << "To device transfer time: (μs) "
               << std::chrono::duration_cast<std::chrono::microseconds>( end_time_2 - start_time_2 ).count()

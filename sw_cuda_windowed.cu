@@ -117,6 +117,7 @@ void sw_cuda_windowed(std::vector<std::pair<std::string, std::string>> const seq
     // Send the data to device
     auto const start_time_2 = std::chrono::steady_clock::now();
     cudaMemcpy( dev_input, sequences_bytes, input_size, cudaMemcpyHostToDevice );
+    cudaDeviceSynchronize();
     auto const end_time_2 = std::chrono::steady_clock::now();
 	std::cout << "To device transfer time: (μs) "
               << std::chrono::duration_cast<std::chrono::microseconds>( end_time_2 - start_time_2 ).count()
