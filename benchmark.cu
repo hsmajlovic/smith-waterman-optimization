@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     // approach for the random number generator libraries that we have chosen.
     std::srand ( static_cast< uint32_t >( std::time(0) ) );
 	auto const test_cases = csc586::benchmark::uniform_rand_vec_of_vec< std::string >( QUANTITY, SIZE );
-	
+
 	if (version == "cuda-alpern")
 		sw_cuda_alpern(test_cases);
 

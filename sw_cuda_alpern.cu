@@ -7,13 +7,29 @@
 #include <stdio.h>
 
 
-using dp_mat = int[ SIZE ][ SIZE ];
+// for cuda error checking
+#define cudaCheckErrors(msg) \
+    do { \
+        cudaError_t __err = cudaGetLastError(); \
+        if (__err != cudaSuccess) { \
+            fprintf(stderr, "Fatal error: %s (%s at %s:%d)\n", \
+                msg, cudaGetErrorString(__err), \
+                __FILE__, __LINE__); \
+            fprintf(stderr, "*** FAILED - ABORTING\n"); \
+            return; \
+        } \
+    } while (0)
+
+
+// TODO: Switch to int16_t
+using dp_mat = int[ SIZE + 1 ][ SIZE + 1 ];
+// typedef int dp_mat[ SIZE + 1 ][ SIZE + 1 ];
 
 __global__
 void align(int *scores, dp_mat *matrices, char *sequences, size_t size) {
     // Thread index
     const int t = threadIdx.x + blockIdx.x * blockDim.x;
-    
+
     // Instantiate scores
     auto const gap      = -2;
     auto const mismatch = -2;
@@ -29,21 +45,28 @@ void align(int *scores, dp_mat *matrices, char *sequences, size_t size) {
     
     for ( auto i = 1; i < size + 1; ++i ) {
         for( auto j = 1; j < size + 1; ++j ) {
-            diagonal_value = matrices[ t ][ i-1 ][ j - 1 ];
+            diagonal_value = matrices[ t ][ i - 1 ][ j - 1 ];
             diagonal_value += (
                 sequences[ t * size * 2 + i - 1 ] == sequences[t * size * 2 + j - 1 + size] ? match : mismatch);
-            top_value = matrices[ t ][ i-1 ][ j ] + gap;
+            top_value = matrices[ t ][ i - 1 ][ j ] + gap;
             left_value = matrices[ t ][ i ][ j - 1 ] + gap;
-            int temp = top_value - ((top_value - left_value) & ((top_value - left_value) >> (sizeof(int) * 8 - 1)));
-            int target_value = diagonal_value - ((diagonal_value - temp) & ((diagonal_value - temp) >> (sizeof(int) * 8 - 1)));  // std::max(diagonal_value, std::max(top_value, left_value));
-            matrices[ t ][ i ][ j ] = target_value - (target_value & (target_value >> (sizeof(int) * 8 - 1)));  // (target_value > 0) ? target_value : 0;
-            // Bithacks to replace branching below:
+            
+            // diagonal_value = std::max(diagonal_value, std::max(top_value, left_value));
+            int temp =
+                top_value - ((top_value - left_value) & ((top_value - left_value) >> (sizeof(int) * 8 - 1)));
+            int target_value =
+                diagonal_value - ((diagonal_value - temp) & ((diagonal_value - temp) >> (sizeof(int) * 8 - 1)));
+            // matrices[ t ][ i ][ j ] = (target_value > 0) ? target_value : 0;
+            matrices[ t ][ i ][ j ] =
+                target_value - (target_value & (target_value >> (sizeof(int) * 8 - 1)));
+            // // Bithacks to replace branching below:
             // max_element = target_value - ((target_value - max_element) & ((target_value - max_element) >> (sizeof(int) * 8 - 1)));
             // temp = int(target_value != max_element);
             // int temp_i = temp * int(i);
             // max_element_i = max_element_i - ((max_element_i - temp_i) & ((max_element_i - temp_i) >> (sizeof(int) * 8 - 1)));
             // int temp_j = temp * int(j);
             // max_element_j = max_element_j - ((max_element_j - temp_j) & ((max_element_j - temp_j) >> (sizeof(int) * 8 - 1)));
+                
             if ( target_value > max_element ) {
                 max_element = target_value;
                 // max_element_i = i;
@@ -52,7 +75,7 @@ void align(int *scores, dp_mat *matrices, char *sequences, size_t size) {
         }
     }
 
-    scores[t] = max_element;
+    scores[ t ] = max_element;
 
     // // Traceback
     // traceback(matrix, max_element_i, max_element_j);
@@ -69,26 +92,65 @@ void sw_cuda_alpern(std::vector<std::pair<std::string, std::string>> const seque
     dp_mat *dev_matrices;
     char   *dev_input;
     int    *dev_output;
-    int matrices_size = QUANTITY * sizeof(dp_mat);
-    int output_size   = QUANTITY * sizeof(int);
-    int input_size    = QUANTITY * SIZE * 2;
+    int64_t matrices_size = QUANTITY * sizeof(dp_mat);
+    int64_t output_size   = QUANTITY * sizeof(int);
+    int64_t input_size    = QUANTITY * SIZE * 2;
 
     // Allocate memory on device
+    auto const start_time_1 = std::chrono::steady_clock::now();
     cudaMalloc( (void**) &dev_output, output_size );
     cudaMalloc( (void**) &dev_matrices, matrices_size );
     cudaMalloc( (void**) &dev_input, input_size );
+    auto const end_time_1 = std::chrono::steady_clock::now();
+	std::cout << "Device malloc time: (μs) "
+              << std::chrono::duration_cast<std::chrono::microseconds>( end_time_1 - start_time_1 ).count()
+              << std::endl;
+    cudaCheckErrors("Failed to allocate device buffer");
 
+    // Preprocessing
+    auto const start_time_0 = std::chrono::steady_clock::now();
+    const char *sequences_bytes = to_byte_arr(sequences);
+    auto const end_time_0 = std::chrono::steady_clock::now();
+	std::cout << "Preprocessing time: (μs) "
+              << std::chrono::duration_cast<std::chrono::microseconds>( end_time_0 - start_time_0 ).count()
+              << std::endl;
+    
     // Send the data to device
-    cudaMemcpy( dev_input, to_byte_arr(sequences), input_size, cudaMemcpyHostToDevice );
+    auto const start_time_2 = std::chrono::steady_clock::now();
+    cudaMemcpy( dev_input, sequences_bytes, input_size, cudaMemcpyHostToDevice );
+    auto const end_time_2 = std::chrono::steady_clock::now();
+	std::cout << "To device transfer time: (μs) "
+              << std::chrono::duration_cast<std::chrono::microseconds>( end_time_2 - start_time_2 ).count()
+              << std::endl;
+    cudaCheckErrors("CUDA memcpy failure");
     
     // Kernel
-    align<<< num_blocks, CUDA_BLOCK_SIZE>>>(dev_output, dev_matrices, dev_input, SIZE);
+    auto const start_time_3 = std::chrono::steady_clock::now();
+    align<<< num_blocks, CUDA_BLOCK_SIZE>>>( dev_output, dev_matrices, dev_input, SIZE );
+    auto const end_time_3 = std::chrono::steady_clock::now();
+    std::cout << "Exec time: (μs) "
+              << std::chrono::duration_cast<std::chrono::microseconds>( end_time_3 - start_time_3 ).count()
+              << std::endl;
+    cudaCheckErrors("Kernel launch failure");
 
     // Retrieve results from device
+    auto const start_time_4 = std::chrono::steady_clock::now();
     cudaMemcpy( scores.data(), dev_output, output_size, cudaMemcpyDeviceToHost );
+    auto const end_time_4 = std::chrono::steady_clock::now();
+    std::cout << "From device transfer time: (μs) "
+              << std::chrono::duration_cast<std::chrono::microseconds>( end_time_4 - start_time_4 ).count()
+              << std::endl;
+    cudaCheckErrors("CUDA memcpy failure");
 
     // Free the memory on device
     cudaFree( dev_input );
     cudaFree( dev_matrices );
     cudaFree( dev_output );
+    cudaCheckErrors("cudaFree fail");
+
+    int total_scores;
+    for (auto e : scores) {
+        total_scores += e;
+    }
+    std::cout << "Average score: " << total_scores / QUANTITY << std::endl;
 }
