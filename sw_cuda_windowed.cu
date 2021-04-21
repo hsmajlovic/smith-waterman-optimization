@@ -7,10 +7,10 @@
 #include <stdio.h>
 
 
-using dp_mat = int16_t[ SIZE + 1 ][ SIZE + 1 ];
+using window_t = int16_t[ WINDOW_SIZE ][ WINDOW_SIZE ];
 
 __global__
-void align(int16_t *scores, dp_mat *matrices, char *sequences, size_t size) {
+void align(int16_t *scores, window_t *windows, char *sequences) {
     // Thread index
     const int16_t t = threadIdx.x + blockIdx.x * blockDim.x;
 
@@ -19,42 +19,57 @@ void align(int16_t *scores, dp_mat *matrices, char *sequences, size_t size) {
     auto const mismatch = -2;
     auto const match    = 3;
 
+    // Calculate params
+    const int16_t batches_no = SIZE / WINDOW_SIZE;
+    int16_t top_leftover[WINDOW_SIZE] = { };
+    int16_t side_leftover[WINDOW_SIZE] = { };
+
     // Instantiate placeholders
     int16_t max_element(0),
-        // max_element_i(0),
-        // max_element_j(0),
         diagonal_value,
         top_value,
         left_value;
+    char s1_piece[WINDOW_SIZE];
+    char s2_piece[WINDOW_SIZE];
     
-    for ( int16_t i = 1; i < size + 1; ++i ) {
-        for( int16_t j = 1; j < size + 1; ++j ) {
-            diagonal_value = matrices[ t ][ i - 1 ][ j - 1 ];
-            diagonal_value += (
-                sequences[ t * size * 2 + i - 1 ] == sequences[t * size * 2 + j - 1 + size] ? match : mismatch);
-            top_value = matrices[ t ][ i - 1 ][ j ] + gap;
-            left_value = matrices[ t ][ i ][ j - 1 ] + gap;
+    for (int16_t bi = 0; bi < batches_no; ++bi) {
+        int16_t offset_i = bi * WINDOW_SIZE;
+        
+        for (int16_t i = 0; i != WINDOW_SIZE; ++i)
+            s1_piece[ i ] = sequences[ t * SIZE * 2 + offset_i + i ];
+        
+        for (int16_t bj = 0; bj < batches_no; ++bj) {
+            int16_t offset_j = bj * WINDOW_SIZE;
             
-            // diagonal_value = std::max(diagonal_value, std::max(top_value, left_value));
-            int16_t temp =
-                top_value - ((top_value - left_value) & ((top_value - left_value) >> (sizeof(int16_t) * 8 - 1)));
-            int16_t target_value =
-                diagonal_value - ((diagonal_value - temp) & ((diagonal_value - temp) >> (sizeof(int16_t) * 8 - 1)));
-            // matrices[ t ][ i ][ j ] = (target_value > 0) ? target_value : 0;
-            matrices[ t ][ i ][ j ] =
-                target_value - (target_value & (target_value >> (sizeof(int16_t) * 8 - 1)));
-            // // Bithacks to replace branching below:
-            // max_element = target_value - ((target_value - max_element) & ((target_value - max_element) >> (sizeof(int16_t) * 8 - 1)));
-            // temp = int16_t(target_value != max_element);
-            // int16_t temp_i = temp * int16_t(i);
-            // max_element_i = max_element_i - ((max_element_i - temp_i) & ((max_element_i - temp_i) >> (sizeof(int16_t) * 8 - 1)));
-            // int16_t temp_j = temp * int16_t(j);
-            // max_element_j = max_element_j - ((max_element_j - temp_j) & ((max_element_j - temp_j) >> (sizeof(int16_t) * 8 - 1)));
-                
-            if ( target_value > max_element ) {
-                max_element = target_value;
-                // max_element_i = i;
-                // max_element_j = j;
+            for (int16_t i = 0; i != WINDOW_SIZE; ++i)
+                s2_piece[ i ] = sequences[ t * SIZE * 2 + SIZE + offset_j + i ];
+            
+            for (int16_t i = 0; i < WINDOW_SIZE; ++i) {
+                windows[ t ][ 0 ][ i ] = top_leftover[ i ];
+                windows[ t ][ i ][ 0 ] = side_leftover[ i ];
+            }
+            
+            for (int16_t i = 1; i < WINDOW_SIZE; ++i) {
+                for (int16_t j = 1; j < WINDOW_SIZE; ++j) {
+                    diagonal_value = windows[ t ][ i - 1 ][ j - 1 ] + (s1_piece[i - 1] == s2_piece[j - 1] ? match : mismatch);
+                    top_value = windows[ t ][ i - 1 ][ j ] + gap;
+                    left_value = windows[ t ][ i ][ j - 1 ] + gap;
+                    // target_value = std::max(diagonal_value, std::max(top_value, left_value));
+                    int16_t temp =
+                        top_value - ((top_value - left_value) & ((top_value - left_value) >> (sizeof(int16_t) * 8 - 1)));
+                    int16_t target_value =
+                        diagonal_value - ((diagonal_value - temp) & ((diagonal_value - temp) >> (sizeof(int16_t) * 8 - 1)));
+                    // windows[ t ][ i ][ j ] = (target_value > 0) ? target_value : 0;
+                    windows[ t ][ i ][ j ] =
+                        target_value - (target_value & (target_value >> (sizeof(int16_t) * 8 - 1)));
+                    if (target_value > max_element)
+                        max_element = target_value;
+                }
+            }
+
+            for (int16_t i = 0; i < WINDOW_SIZE; ++i) {
+                top_leftover[ i ] = windows[ t ][ WINDOW_SIZE - 1 ][ i ];
+                side_leftover[ i ] = windows[ t ][ i ][ WINDOW_SIZE - 1 ];
             }
         }
     }
@@ -65,7 +80,7 @@ void align(int16_t *scores, dp_mat *matrices, char *sequences, size_t size) {
     // traceback(matrix, max_element_i, max_element_j);
 }
 
-void sw_cuda_alpern(std::vector<std::pair<std::string, std::string>> const sequences){
+void sw_cuda_windowed(std::vector<std::pair<std::string, std::string>> const sequences){
     // Quanitities
     int const num_blocks = QUANTITY / CUDA_BLOCK_SIZE;
     
@@ -73,10 +88,10 @@ void sw_cuda_alpern(std::vector<std::pair<std::string, std::string>> const seque
     std::vector<int16_t> scores(QUANTITY);
     
     // Instantiate device variables
-    dp_mat  *dev_matrices;
-    char    *dev_input;
-    int16_t *dev_output;
-    int64_t matrices_size = QUANTITY * sizeof(dp_mat);
+    window_t  *dev_matrices;
+    char      *dev_input;
+    int16_t   *dev_output;
+    int64_t matrices_size = QUANTITY * sizeof(window_t);
     int64_t output_size   = QUANTITY * sizeof(int16_t);
     int64_t input_size    = QUANTITY * SIZE * 2;
 
@@ -110,7 +125,7 @@ void sw_cuda_alpern(std::vector<std::pair<std::string, std::string>> const seque
     
     // Kernel
     auto const start_time_3 = std::chrono::steady_clock::now();
-    align<<< num_blocks, CUDA_BLOCK_SIZE>>>( dev_output, dev_matrices, dev_input, SIZE );
+    align<<< num_blocks, CUDA_BLOCK_SIZE>>>( dev_output, dev_matrices, dev_input );
     cudaDeviceSynchronize();
     auto const end_time_3 = std::chrono::steady_clock::now();
     std::cout << "Exec time: (μs) "

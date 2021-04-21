@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 const char *to_byte_arr(std::vector<std::pair<std::string, std::string>> pairs) {
     std::string flattened_pairs;
     
@@ -6,3 +9,5 @@ const char *to_byte_arr(std::vector<std::pair<std::string, std::string>> pairs) 
     
     return flattened_pairs.c_str();
 }
+
+# endif // UTILS_H
