@@ -1,12 +1,12 @@
 #ifndef SSE_S
 	#ifdef __AVX512F__
-	#define SSE_S 16
+		#define SSE_S 16
 	#elif defined __AVX2__
-	#define SSE_S 8
+		#define SSE_S 8
 	#elif defined __SSE2__ && defined __SSE4_1__
-	#define SSE_S 4
+		#define SSE_S 4
 	#else
-	#define SSE_S 1
+		#define SSE_S 1
 	#endif
 #endif
 
