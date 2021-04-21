@@ -1,5 +1,5 @@
 #ifndef CUDA_BLOCK_SIZE
-	#define CUDA_BLOCK_SIZE 512
+	#define CUDA_BLOCK_SIZE (1 << BLOCK_SIZE_SCALE)
 #endif
 #ifndef QUANTITY
 	#define QUANTITY (1 << QUANTITY_SCALE)
@@ -17,17 +17,6 @@
 #include "benchmarking/data-generation.hpp"
 #include "assert.h"
 #include "sw_cuda_alpern.cu"
-
-
-struct cuda_alpern_sw
-{
-	template < typename T >
-		T operator () ( std::pair< T, T > data ) const
-		{
-			sw_cuda_alpern(data);
-            return "0";
-		}
-};
 
 
 int main(int argc, char** argv)
