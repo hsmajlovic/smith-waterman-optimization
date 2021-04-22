@@ -9,7 +9,7 @@ Repository contains performance optimizations for [Linear gap Smith-Waterman alg
 
 **Note: Check if your CPU supports SSE2/4, AVX2 and/or AVX-512 first. Otherwise the SIMD benchmark will still run, but with no valid results.**
 
-So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-windowed`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm for a CPU, and `cuda-alpern`, `cuda-antidiagonal` and `cuda-windowed` for a GPU:
+So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-windowed`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm for a CPU, and `cuda-alpern`, `cuda-ad (antidiagonal)` and `cuda-windowed` for a GPU:
 - Baseline: A straight forward baseline version of the SW algorithm.
 - Bithacked: Baseline version with heavy branching replaced with bithacks.
 - Bithacked-striped: Bithacked version with an access pattern that is more L1 cache friendly.
@@ -47,7 +47,8 @@ perf stat -e cycles:u,instructions:u ./$exe_path $version
 ### GPU Examples
 - For CUDA (Aplern technique) set `version=cuda-alpern` in your bash
 - For CUDA windowed set `version=cuda-windowed` in your bash
-- For CUDA antidiagonal set `cuda-antidiagonal` in your bash
+- For CUDA antidiagonal set `version=cuda-ad-chained` in your bash.
+  Alternatevly, to test hypothetical scenario with no data dependency, set `version=cuda-ad-unchained` in your bash
 
 and then do
 ```bash

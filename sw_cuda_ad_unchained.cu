@@ -9,19 +9,21 @@
 
 using dp_mat = int16_t[ SIZE + 1 ][ SIZE + 1 ];
 
+
 __global__
-void align_kernel(int *scores, dp_mat *matrices, char *sequences, size_t diagonal_idx) {
+void align_kernel(int *scores, dp_mat *matrices, char *sequences) {
     // Indices
     const int16_t tid = threadIdx.x + blockIdx.x * blockDim.x;
-    const int16_t did = threadIdx.y + blockIdx.y * blockDim.y;
+    const int16_t iid = threadIdx.y + blockIdx.y * blockDim.y;
+    const int16_t jid = threadIdx.z + blockIdx.z * blockDim.z;
 
     // Instantiate scores
     auto const gap      = -2;
     auto const mismatch = -2;
     auto const match    = 3;
 
-    int16_t i = diagonal_idx > SIZE ? diagonal_idx - SIZE + did + 1 : did + 1;
-    int16_t j = diagonal_idx > SIZE ? SIZE - did : diagonal_idx - did;
+    int16_t i = iid + 1;
+    int16_t j = jid + 1;
     int16_t diagonal_value = matrices[ tid ][ i - 1 ][ j - 1 ];
     diagonal_value += (
         sequences[ tid * SIZE * 2 + i - 1 ] == sequences[ tid * SIZE * 2 + j - 1 + SIZE ] ? match : mismatch);
@@ -41,7 +43,7 @@ void align_kernel(int *scores, dp_mat *matrices, char *sequences, size_t diagona
 }
 
 
-void sw_cuda_antidiagonal(std::vector<std::pair<std::string, std::string>> const sequences){
+void sw_cuda_ad_unchained(std::vector<std::pair<std::string, std::string>> const sequences){
     // Instantiate host variables
     std::vector<int> scores(QUANTITY);
     
@@ -80,7 +82,6 @@ void sw_cuda_antidiagonal(std::vector<std::pair<std::string, std::string>> const
     auto const start_time_2 = std::chrono::steady_clock::now();
     
     cudaMemcpy( dev_input, sequences_bytes, input_size, cudaMemcpyHostToDevice );
-    cudaDeviceSynchronize();
     
     auto const end_time_2 = std::chrono::steady_clock::now();
 	std::cout << "To device transfer time: (μs) "
@@ -91,13 +92,9 @@ void sw_cuda_antidiagonal(std::vector<std::pair<std::string, std::string>> const
     // Kernel
     auto const start_time_3 = std::chrono::steady_clock::now();
     
-    for (auto d = 1u; d != SIZE * 2; ++d) {
-        int16_t diagonal_size = d <= SIZE ? d : 2 * SIZE - d;
-        dim3 blockSize(CUDA_BLOCK_SIZE, diagonal_size < Y_BLOCK_SIZE ? 1 : Y_BLOCK_SIZE);
-        dim3 gridSize(QUANTITY / CUDA_BLOCK_SIZE, (diagonal_size + blockSize.y - 1) / blockSize.y);
-        align_kernel<<< gridSize, blockSize>>>( dev_output, dev_matrices, dev_input, d );
-    }
-    cudaDeviceSynchronize();
+    dim3 blockSize(CUDA_XBLOCK_SIZE, CUDA_YBLOCK_SIZE, CUDA_ZBLOCK_SIZE);
+    dim3 gridSize(QUANTITY / CUDA_XBLOCK_SIZE, SIZE / CUDA_YBLOCK_SIZE, SIZE / CUDA_ZBLOCK_SIZE);
+    align_kernel<<< gridSize, blockSize>>>( dev_output, dev_matrices, dev_input);
     
     auto const end_time_3 = std::chrono::steady_clock::now();
     std::cout << "Exec time: (μs) "

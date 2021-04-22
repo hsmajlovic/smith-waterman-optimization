@@ -1,8 +1,11 @@
-#ifndef CUDA_BLOCK_SIZE
-	#define CUDA_BLOCK_SIZE (1 << BLOCK_SIZE_SCALE)
+#ifndef CUDA_XBLOCK_SIZE
+	#define CUDA_XBLOCK_SIZE (1 << XBLOCK_SIZE_SCALE)
 #endif
-#ifndef Y_BLOCK_SIZE
-	#define Y_BLOCK_SIZE (1 << (10 - BLOCK_SIZE_SCALE))
+#ifndef CUDA_YBLOCK_SIZE
+	#define CUDA_YBLOCK_SIZE (1 << YBLOCK_SIZE_SCALE)
+#endif
+#ifndef CUDA_ZBLOCK_SIZE
+	#define CUDA_ZBLOCK_SIZE (1 << ZBLOCK_SIZE_SCALE)
 #endif
 #ifndef QUANTITY
 	#define QUANTITY (1 << QUANTITY_SCALE)
@@ -37,13 +40,14 @@
 #include "assert.h"
 #include "sw_cuda_alpern.cu"
 #include "sw_cuda_windowed.cu"
-#include "sw_cuda_antidiagonal.cu"
+#include "sw_cuda_ad_chained.cu"
+#include "sw_cuda_ad_unchained.cu"
 
 
 int main(int argc, char** argv)
 {
 	std::string version(argv[argc - 1]);
-	std::vector<std::string> versions_list = { "cuda-alpern", "cuda-windowed", "cuda-antidiagonal" };
+	std::vector<std::string> versions_list = { "cuda-alpern", "cuda-windowed", "cuda-ad-chained", "cuda-ad-unchained" };
 	std::set<std::string> versions (versions_list.begin(), versions_list.end());
 	const bool is_in = versions.find(version) != versions.end();
 	if (!is_in) std::cout << "Incorrect version provided: " << version << std::endl;
@@ -58,8 +62,10 @@ int main(int argc, char** argv)
 		sw_cuda_alpern(test_cases);
 	else if (version == "cuda-windowed")
 		sw_cuda_windowed(test_cases);
-	else if (version == "cuda-antidiagonal")
-		sw_cuda_antidiagonal(test_cases);
+	else if (version == "cuda-ad-chained")
+		sw_cuda_ad_chained(test_cases);
+	else if (version == "cuda-ad-unchained")
+		sw_cuda_ad_unchained(test_cases);
 
 	return 0;
 }

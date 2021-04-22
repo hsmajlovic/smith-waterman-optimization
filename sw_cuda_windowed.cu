@@ -82,7 +82,7 @@ void align(int16_t *scores, window_t *windows, char *sequences) {
 
 void sw_cuda_windowed(std::vector<std::pair<std::string, std::string>> const sequences){
     // Quanitities
-    int const num_blocks = QUANTITY / CUDA_BLOCK_SIZE;
+    int const num_blocks = QUANTITY / CUDA_XBLOCK_SIZE;
     
     // Instantiate host variables
     std::vector<int16_t> scores(QUANTITY);
@@ -117,7 +117,6 @@ void sw_cuda_windowed(std::vector<std::pair<std::string, std::string>> const seq
     // Send the data to device
     auto const start_time_2 = std::chrono::steady_clock::now();
     cudaMemcpy( dev_input, sequences_bytes, input_size, cudaMemcpyHostToDevice );
-    cudaDeviceSynchronize();
     auto const end_time_2 = std::chrono::steady_clock::now();
 	std::cout << "To device transfer time: (μs) "
               << std::chrono::duration_cast<std::chrono::microseconds>( end_time_2 - start_time_2 ).count()
@@ -126,8 +125,7 @@ void sw_cuda_windowed(std::vector<std::pair<std::string, std::string>> const seq
     
     // Kernel
     auto const start_time_3 = std::chrono::steady_clock::now();
-    align<<< num_blocks, CUDA_BLOCK_SIZE>>>( dev_output, dev_matrices, dev_input );
-    cudaDeviceSynchronize();
+    align<<< num_blocks, CUDA_XBLOCK_SIZE>>>( dev_output, dev_matrices, dev_input );
     auto const end_time_3 = std::chrono::steady_clock::now();
     std::cout << "Exec time: (μs) "
               << std::chrono::duration_cast<std::chrono::microseconds>( end_time_3 - start_time_3 ).count()
