@@ -53,7 +53,14 @@ perf stat -e cycles:u,instructions:u ./$exe_path $version
 and then do
 ```bash
 exe_path=benchmark_${version}.out && \
-nvcc -O3 -D QUANTITY_SCALE=13 -D SIZE_SCALE=10 -D BLOCK_SIZE_SCALE=7 -D WINDOW_SIZE_SCALE=7 -o $exe_path benchmark.cu && \
+nvcc -O3 \
+    -D QUANTITY_SCALE=13 \
+    -D SIZE_SCALE=10 \
+    -D XBLOCK_SIZE_SCALE=6 \
+    -D YBLOCK_SIZE_SCALE=2 \
+    -D ZBLOCK_SIZE_SCALE=2 \
+    -D WINDOW_SIZE_SCALE=7 \
+    -o $exe_path benchmark.cu && \
 ./$exe_path $version
 ```
 
