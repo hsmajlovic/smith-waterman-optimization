@@ -7,21 +7,27 @@ Repository contains performance optimizations for [Linear gap Smith-Waterman alg
 
 ## Optimizations
 
-**Note: Check if your CPU supports AVX2 and/or AVX-512 first. Otherwise the SIMD benchmark will still run, but with no valid results.**
+**Note: Check if your CPU supports SSE2/4, AVX2 and/or AVX-512 first. Otherwise the SIMD benchmark will still run, but with no valid results.**
 
-So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-windowed`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm.
+So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-windowed`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm for a CPU, and `cuda-alpern`, and `cuda-windowed` for a GPU:
 - Baseline: A straight forward baseline version of the SW algorithm.
 - Bithacked: Baseline version with heavy branching replaced with bithacks.
 - Bithacked-striped: Bithacked version with an access pattern that is more L1 cache friendly.
-- Windowed: A version of hypothetical scenario in which dynamic programming matrix is not needed and only the maximum value in the matrix is searched for.
-- Multicore-windowed: Using the technique above, spreads across multiple CPU cores.
-- SIMDed (Alpern technique): A SIMDed baseline using widest registers that your CPU supports and inter-alignment technique from [Alpern et al](https://dl.acm.org/doi/10.1145/224170.224222). (Note that currently only 512bit and 256bit registers are supported) 
+- Windowed: For a scenario in which traceback is not needed but only the best match score.
+- Multicore windowed: Using the technique above, spreads across multiple CPU cores.
+- SIMDed (Alpern technique): A SIMDed baseline using widest registers that your CPU supports and inter-alignment technique from [Alpern et al](https://dl.acm.org/doi/10.1145/224170.224222).
 - Multicore (Alpern technique): Just a SIMDed technique above spread accross multiple CPU cores.
+- CUDA (Alpern technique): A SIMTed baseline using inter-alignment technique akin to SIMD Alpern technique above.
+- CUDA windowed: A SIMT implementation of a windowed version above.
 
 ## Testing
-In order to benchmark the algorithm use `perf` (for now -- sorry non-linux users). So just compile `benchmark.cpp` and then run `perf` on the executable. Don't forget to provide version string as a CLI argument.
+In order to benchmark the CPU solutions use `perf` (for now -- sorry non-linux users). So just compile `benchmark.cpp` and then run `perf` on the executable.
 
-### Examples
+For testing the GPU solutions just compile and run `benchmark.cu`.
+
+Don't forget to provide version string as a CLI argument.
+
+### CPU Examples
 - For baseline set `version=base` in your bash
 - For bithacked set `version=bithacked` in your bash
 - For bithacked-striped set `version=bithacked-striped` in your bash
@@ -35,6 +41,17 @@ and then do
 exe_path=benchmark_${version}.out && \
 g++ -D THRD_CNT=2 -march=native -fopenmp -Wall -Og -std=c++17 -o $exe_path benchmark.cpp && \
 perf stat -e cycles:u,instructions:u ./$exe_path $version
+```
+
+### GPU Examples
+- For CUDA (Aplern technique) set `version=cuda-alpern` in your bash
+- For CUDA windowed set `version=cuda-windowed` in your bash
+
+and then do
+```bash
+exe_path=benchmark_${version}.out && \
+nvcc -O3 -D QUANTITY_SCALE=13 -D SIZE_SCALE=10 -D BLOCK_SIZE_SCALE=7 -D WINDOW_SIZE_SCALE=7 -o $exe_path benchmark.cu && \
+./$exe_path $version
 ```
 
 ### Results
