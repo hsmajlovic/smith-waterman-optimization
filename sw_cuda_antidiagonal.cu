@@ -96,8 +96,8 @@ void sw_cuda_antidiagonal(std::vector<std::pair<std::string, std::string>> const
         dim3 blockSize(CUDA_BLOCK_SIZE, diagonal_size < Y_BLOCK_SIZE ? 1 : Y_BLOCK_SIZE);
         dim3 gridSize(QUANTITY / CUDA_BLOCK_SIZE, (diagonal_size + blockSize.y - 1) / blockSize.y);
         align_kernel<<< gridSize, blockSize>>>( dev_output, dev_matrices, dev_input, d );
-        cudaDeviceSynchronize();
     }
+    cudaDeviceSynchronize();
     
     auto const end_time_3 = std::chrono::steady_clock::now();
     std::cout << "Exec time: (μs) "
