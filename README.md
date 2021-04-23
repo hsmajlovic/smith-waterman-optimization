@@ -9,7 +9,7 @@ Repository contains performance optimizations for [Linear gap Smith-Waterman alg
 
 **Note: Check if your CPU supports SSE2/4, AVX2 and/or AVX-512 first. Otherwise the SIMD benchmark will still run, but with no valid results.**
 
-So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-windowed`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm for a CPU, and `cuda-alpern`, `cuda-ad (antidiagonal)` and `cuda-windowed` for a GPU:
+So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-windowed`, `windowed`, `simd-alpern` and `multicore-alpern` version of the very same algorithm for a CPU, and `cuda-alpern`, `cuda-antidiagonal`, `cuda-hypothetical`, and `cuda-windowed` for a GPU:
 - Baseline: A straight forward baseline version of the SW algorithm.
 - Bithacked: Baseline version with heavy branching replaced with bithacks.
 - Bithacked-striped: Bithacked version with an access pattern that is more L1 cache friendly.
@@ -19,7 +19,8 @@ So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-window
 - Multicore (Alpern technique): Just a SIMDed technique above spread accross multiple CPU cores.
 - CUDA (Alpern technique): A SIMTed baseline using inter-alignment technique akin to SIMD Alpern technique above.
 - CUDA windowed: A SIMT implementation of a windowed version above.
-- CUDA antidiagonal: A 2-dimentional parallelisation attempt exposing both inter and intra alignment parallelism.
+- CUDA antidiagonal: A 2-dimentional parallelisation exposing both inter and intra alignment parallelism.
+- CUDA hypothetical: A 3-dimentional parallelisation in which all data dependency is ignore and parallelization utilized to full extent.
 
 ## Testing
 In order to benchmark the CPU solutions use `perf` (for now -- sorry non-linux users). So just compile `benchmark.cpp` and then run `perf` on the executable.
@@ -47,8 +48,8 @@ perf stat -e cycles:u,instructions:u ./$exe_path $version
 ### GPU Examples
 - For CUDA (Aplern technique) set `version=cuda-alpern` in your bash
 - For CUDA windowed set `version=cuda-windowed` in your bash
-- For CUDA antidiagonal set `version=cuda-ad-chained` in your bash.
-  Alternatevly, to test hypothetical scenario with no data dependency, set `version=cuda-ad-unchained` in your bash
+- For CUDA antidiagonal set `version=cuda-antidiagonal` in your bash.
+- For CUDA hypothetical set `version=cuda-hypothetical` in your bash.
 
 and then do
 ```bash
@@ -56,8 +57,8 @@ exe_path=benchmark_${version}.out && \
 nvcc -O3 \
     -D QUANTITY_SCALE=13 \
     -D SIZE_SCALE=10 \
-    -D XBLOCK_SIZE_SCALE=6 \
-    -D YBLOCK_SIZE_SCALE=2 \
+    -D XBLOCK_SIZE_SCALE=5 \
+    -D YBLOCK_SIZE_SCALE=3 \
     -D ZBLOCK_SIZE_SCALE=2 \
     -D WINDOW_SIZE_SCALE=7 \
     -o $exe_path benchmark.cu && \

@@ -9,19 +9,10 @@
 
 using dp_mat = int16_t[ SIZE + 1 ][ SIZE + 1 ];
 
-__global__
-void align_kernel(int *scores, dp_mat *matrices, char *sequences, size_t diagonal_idx) {
-    // Indices
-    const int16_t tid = threadIdx.x + blockIdx.x * blockDim.x;
-    const int16_t did = threadIdx.y + blockIdx.y * blockDim.y;
-
-    // Instantiate scores
-    auto const gap      = -2;
-    auto const mismatch = -2;
-    auto const match    = 3;
-
-    int16_t i = diagonal_idx > SIZE ? diagonal_idx - SIZE + did + 1 : did + 1;
-    int16_t j = diagonal_idx > SIZE ? SIZE - did : diagonal_idx - did;
+__device__
+void atomic_kernel(int *scores, dp_mat *matrices, char *sequences,
+                   int16_t tid, int16_t i, int16_t j,
+                   int16_t gap, int16_t mismatch, int16_t match) {
     int16_t diagonal_value = matrices[ tid ][ i - 1 ][ j - 1 ];
     diagonal_value += (
         sequences[ tid * SIZE * 2 + i - 1 ] == sequences[ tid * SIZE * 2 + j - 1 + SIZE ] ? match : mismatch);
@@ -40,8 +31,28 @@ void align_kernel(int *scores, dp_mat *matrices, char *sequences, size_t diagona
     atomicMax(scores + tid, int(target_value));
 }
 
+__global__
+void antidiagonal_kernel(int *scores, dp_mat *matrices, char *sequences) {
+    // Indices
+    const int16_t tid = threadIdx.x + blockIdx.x * blockDim.x;
+    const int16_t rid = threadIdx.y + blockIdx.y * blockDim.y;
 
-void sw_cuda_ad_chained(std::vector<std::pair<std::string, std::string>> const sequences){
+    // Instantiate scores
+    auto const gap      = -2;
+    auto const mismatch = -2;
+    auto const match    = 3;
+
+    for (int16_t did = rid; did != rid + SIZE; ++did) {
+        int16_t row = rid + 1;
+        int16_t column = did - rid + 1;
+        atomic_kernel(scores, matrices, sequences,
+                      tid, row, column,
+                      gap, mismatch, match);
+    }
+}
+
+
+void sw_cuda_antidiagonal(std::vector<std::pair<std::string, std::string>> const sequences){
     // Instantiate host variables
     std::vector<int> scores(QUANTITY);
     
@@ -90,12 +101,9 @@ void sw_cuda_ad_chained(std::vector<std::pair<std::string, std::string>> const s
     // Kernel
     auto const start_time_3 = std::chrono::steady_clock::now();
     
-    for (auto d = 1u; d != SIZE * 2; ++d) {
-        int16_t diagonal_size = d <= SIZE ? d : 2 * SIZE - d;
-        dim3 blockSize(CUDA_XBLOCK_SIZE, diagonal_size < CUDA_YBLOCK_SIZE ? 1 : CUDA_YBLOCK_SIZE);
-        dim3 gridSize(QUANTITY / blockSize.x, (diagonal_size + blockSize.y - 1) / blockSize.y);
-        align_kernel<<< gridSize, blockSize>>>( dev_output, dev_matrices, dev_input, d );
-    }
+    dim3 blockSize(CUDA_XBLOCK_SIZE, CUDA_YBLOCK_SIZE);
+    dim3 gridSize(QUANTITY / CUDA_XBLOCK_SIZE, SIZE / CUDA_YBLOCK_SIZE);
+    antidiagonal_kernel<<< gridSize, blockSize >>>( dev_output, dev_matrices, dev_input );
     
     auto const end_time_3 = std::chrono::steady_clock::now();
     std::cout << "Exec time: (μs) "

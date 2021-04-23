@@ -43,7 +43,7 @@ void align_kernel(int *scores, dp_mat *matrices, char *sequences) {
 }
 
 
-void sw_cuda_ad_unchained(std::vector<std::pair<std::string, std::string>> const sequences){
+void sw_cuda_hypothetical(std::vector<std::pair<std::string, std::string>> const sequences){
     // Instantiate host variables
     std::vector<int> scores(QUANTITY);
     
