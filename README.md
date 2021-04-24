@@ -48,8 +48,8 @@ perf stat -e cycles:u,instructions:u ./$exe_path $version
 ### GPU Examples
 - For CUDA (Aplern technique) set `version=cuda-alpern` in your bash
 - For CUDA windowed set `version=cuda-windowed` in your bash
-- For CUDA antidiagonal set `version=cuda-antidiagonal` in your bash.
-- For CUDA hypothetical set `version=cuda-hypothetical` in your bash.
+- For CUDA antidiagonal set `version=cuda-antidiagonal` in your bash
+- For CUDA hypothetical set `version=cuda-hypothetical` in your bash
 
 and then do
 ```bash
