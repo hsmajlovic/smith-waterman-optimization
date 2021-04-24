@@ -41,10 +41,10 @@ void antidiagonal_kernel(int *scores, dp_mat *matrices, char *sequences) {
     auto const gap      = -2;
     auto const mismatch = -2;
     auto const match    = 3;
-
-    for (int16_t did = rid; did != rid + SIZE; ++did) {
+    
+    for (int16_t did = 0; did != rid + SIZE; ++did) {
         int16_t row = rid + 1;
-        int16_t column = did - rid + 1;
+        int16_t column = (did < rid ? did : did - rid) + 1;
         atomic_kernel(scores, matrices, sequences,
                       tid, row, column,
                       gap, mismatch, match);
