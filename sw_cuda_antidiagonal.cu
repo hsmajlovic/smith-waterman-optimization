@@ -48,6 +48,7 @@ void antidiagonal_kernel(int *scores, dp_mat *matrices, char *sequences) {
         atomic_kernel(scores, matrices, sequences,
                       tid, row, column,
                       gap, mismatch, match);
+        __syncthreads();
     }
 }
 
