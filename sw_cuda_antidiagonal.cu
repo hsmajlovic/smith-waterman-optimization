@@ -37,6 +37,9 @@ void antidiagonal_kernel(int *scores, dp_mat *matrices, char *sequences) {
     const int16_t tid = threadIdx.x + blockIdx.x * blockDim.x;
     const int16_t rid = threadIdx.y + blockIdx.y * blockDim.y;
 
+    if (tid > QUANTITY || rid > SIZE)
+        return;
+
     // Instantiate scores
     auto const gap      = -2;
     auto const mismatch = -2;

@@ -14,6 +14,9 @@ void align(int16_t *scores, window_t *windows, char *sequences) {
     // Thread index
     const int16_t t = threadIdx.x + blockIdx.x * blockDim.x;
 
+    if (t > QUANTITY)
+        return;
+
     // Instantiate scores
     auto const gap      = -2;
     auto const mismatch = -2;
