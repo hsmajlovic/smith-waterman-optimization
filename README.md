@@ -20,7 +20,7 @@ So far we have a `baseline`, `bithacked`, `bithacked-striped`, `multicore-window
 - CUDA (Alpern technique): A SIMTed baseline using inter-alignment technique akin to SIMD Alpern technique above.
 - CUDA windowed: A SIMT implementation of a windowed version above.
 - CUDA antidiagonal: A 2-dimentional parallelisation exposing both inter and intra alignment parallelism.
-- CUDA hypothetical: A 3-dimentional parallelisation in which all data dependency is ignore and parallelization utilized to full extent.
+- CUDA hypothetical: A 3-dimentional parallelisation in which all data dependency is ignored and parallelization utilized to full extent.
 
 ## Testing
 In order to benchmark the CPU solutions use `perf` (for now -- sorry non-linux users). So just compile `benchmark.cpp` and then run `perf` on the executable.
